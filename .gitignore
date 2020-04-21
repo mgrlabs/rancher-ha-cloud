@@ -1,0 +1,9 @@
+**/*.tfstate*
+**/.terraform
+**/local.tfvars
+**/output.json
+terraform/*.yml
+**/*.rkestate
+**/kube_config_cluster.yml
+**/cluster.yml
+bootstrap-rke.sh
