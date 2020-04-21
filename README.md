@@ -12,9 +12,11 @@
 
 # Design Notes
 
-The worker role should not be used or added on nodes with the etcd or controlplane role
+The worker role should not be used or added on nodes with the etcd or controlplane role:
 - https://rancher.com/docs/rancher/v2.x/en/cluster-provisioning/production/
 
-
-RKE can use a bastion host
+RKE can use a bastion host:
 - https://rancher.com/docs/rke/latest/en/config-options/bastion-host/
+
+Access Kubernetes API behind a bastion host:
+- https://stevesloka.com/access-kubernetes-master-behind-bastion-box/

@@ -91,3 +91,15 @@ resource "azurerm_lb_rule" "https" {
   frontend_ip_configuration_name = "rke-lb-frontend"
   backend_address_pool_id        = azurerm_lb_backend_address_pool.frontend.id
 }
+
+# kubeapi
+resource "azurerm_lb_rule" "kubeapi" {
+  resource_group_name            = azurerm_resource_group.resourcegroup.name
+  loadbalancer_id                = azurerm_lb.frontend.id
+  name                           = "kubeApiAccess"
+  protocol                       = "Tcp"
+  frontend_port                  = 6443
+  backend_port                   = 6443
+  frontend_ip_configuration_name = "rke-lb-frontend"
+  backend_address_pool_id        = azurerm_lb_backend_address_pool.frontend.id
+}
