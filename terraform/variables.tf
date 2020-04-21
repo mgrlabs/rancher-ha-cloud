@@ -25,13 +25,6 @@ variable "azure_service_principal" {
   type        = map
   description = "Azure Service Principal under which Terraform will be executed."
 
-  default = {
-    subscription_id = "623aabe5-748d-4b15-be89-3119e247a9fd"
-    client_id       = "47bf8092-c255-4a55-9ac6-6a6fcba1f730"
-    client_secret   = "033658bd-c3a0-4feb-b505-8ef72dbac67f"
-    tenant_id       = "c9668235-b172-4892-9185-978357e09f2b"
-    environment     = "public"
-  }
 }
 
 # Location
