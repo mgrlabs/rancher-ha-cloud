@@ -17,7 +17,7 @@ variable "azure_resource_group" {
 
 variable "docker_version" {
   type        = string
-  default     = "19.03.8"
+  default     = "18.09.9"
   description = "Version of Docker to use to provision Rancher"
 }
 
@@ -66,5 +66,5 @@ variable "loadbalancer_dns_prefix" {
 variable "rke_node_image_sku" {
   type        = string
   default     = "18.04-LTS"
-  description = ""
+  description = "The version of Ubuntu to deploy to the RKE nodes."
 }
