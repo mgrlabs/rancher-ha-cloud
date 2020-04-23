@@ -7,3 +7,4 @@ terraform/*.yml
 **/kube_config_cluster.yml
 **/cluster.yml
 bootstrap-rke.sh
+ssh_private_key

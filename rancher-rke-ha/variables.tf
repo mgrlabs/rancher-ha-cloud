@@ -77,6 +77,6 @@ variable "loadbalancer_dns_prefix" {
 
 variable "rke_node_image_sku" {
   type        = string
-  default     = "16.04-LTS"
+  default     = "18.04-LTS"
   description = ""
 }
