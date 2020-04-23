@@ -1,48 +1,36 @@
-# Location
-variable "azure_region" {
+variable "company_prefix" {
   type        = string
-  description = "Azure region where all infrastructure will be provisioned."
+  default     = "servian-rancher-demo"
+  description = "(Required) Prefix given to all globally unique names"
+}
 
-  default = "Australia East"
+variable "location" {
+  type        = string
+  description = "(Required) Specifies the supported Azure location where the resource exists. Changing this forces a new resource to be created."
 }
 
 variable "azure_resource_group" {
   type        = string
+  default     = "rg-arkose-rancher-rke"
   description = "Name of the Azure Resource Group to be created for the network."
-
-  default = "rg-arkose-rancher-rke"
 }
 
-# Supporting Software
-# RKE Version
-variable "rke_version" {
-  type        = string
-  description = "version of Rancher Kubernetes Engine (RKE) used to provision Kubernetes"
-
-  default = "v0.2.10"
-}
-
-# Docker Version
 variable "docker_version" {
   type        = string
+  default     = "19.03.8"
   description = "Version of Docker to use to provision Rancher"
-
-  default = "19.03.8"
 }
 
-# Authorization Variables for the Terraform Azure Provider
 variable "azure_service_principal" {
   type        = map
   description = "Azure Service Principal under which Terraform will be executed."
 }
 
-# Node Sizes
 variable "rke_node_vm_size" {
   type        = string
   description = "Azure VM size of the worker nodes"
 
-  # default = "Standard_B2s"
-  default     = "Standard_D2s_v3"
+  default = "Standard_D2s_v3"
 }
 
 variable "bastion_node_vm_size" {

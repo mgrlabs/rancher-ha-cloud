@@ -33,18 +33,24 @@ resource "null_resource" "rke_up" {
     command = "rke up"
   }
 
-  depends_on = [local_file.rke_config, azurerm_virtual_machine.rke]
+  depends_on = [
+    local_file.rke_config,
+    azurerm_virtual_machine.rke
+  ]
 }
 
 data "local_file" "rke_kube_config" {
   filename = "${path.module}/kube_config_cluster.yml"
-
-  depends_on = [null_resource.rke_up]
+  depends_on = [
+    null_resource.rke_up
+  ]
 }
 
 resource "local_file" "rke_replace" {
   content  = replace(data.local_file.rke_kube_config.content, "/server:.*/", "server: \"https://${azurerm_public_ip.frontend.fqdn}:6443\"")
-  filename = "${path.module}/kube_config_cluster.yml"
+  filename = "${path.module}/../kube_config_cluster.yml"
 
-  depends_on = [data.local_file.rke_kube_config]
+  depends_on = [
+    data.local_file.rke_kube_config
+  ]
 }
