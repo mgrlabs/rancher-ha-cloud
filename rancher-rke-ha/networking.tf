@@ -4,7 +4,7 @@
 
 # Create a virtual network within the resource group
 resource "azurerm_virtual_network" "network" {
-  name                = "vnet-${azurerm_resource_group.resourcegroup.name}"
+  name                = "vnet-rancher-rke-ha"
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.resourcegroup.location
   resource_group_name = azurerm_resource_group.resourcegroup.name

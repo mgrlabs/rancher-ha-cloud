@@ -26,7 +26,7 @@ resource "azurerm_public_ip" "frontend" {
   location            = azurerm_resource_group.resourcegroup.location
   resource_group_name = azurerm_resource_group.resourcegroup.name
   allocation_method   = "Static"
-  domain_name_label   = var.loadbalancer_dns_label
+  domain_name_label   = var.loadbalancer_dns_prefix
 }
 
 resource "azurerm_lb" "frontend" {
@@ -34,7 +34,7 @@ resource "azurerm_lb" "frontend" {
   sku                 = "standard"
   location            = azurerm_resource_group.resourcegroup.location
   resource_group_name = azurerm_resource_group.resourcegroup.name
- 
+
   frontend_ip_configuration {
     name                 = "rke-lb-frontend"
     public_ip_address_id = azurerm_public_ip.frontend.id

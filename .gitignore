@@ -1,6 +1,6 @@
 **/*.tfstate*
 **/.terraform
-**/local.tfvars
+**/local*.tfvars
 **/output.json
 terraform/*.yml
 **/*.rkestate

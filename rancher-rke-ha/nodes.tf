@@ -1,4 +1,17 @@
 ################################
+# SSH Key
+################################
+
+resource "tls_private_key" "ssh" {
+  algorithm = "RSA"
+}
+
+resource "local_file" "ssh_private" {
+  content  = tls_private_key.ssh.private_key_pem
+  filename = "${path.module}/ssh_private_key"
+}
+
+################################
 # Nodes - RKE Nodes
 ################################
 
@@ -61,7 +74,7 @@ resource "azurerm_virtual_machine" "rke" {
   storage_image_reference {
     publisher = "Canonical"
     offer     = "UbuntuServer"
-    sku       = "16.04-LTS"
+    sku       = var.rke_node_image_sku
     version   = "latest"
   }
 
@@ -81,7 +94,7 @@ resource "azurerm_virtual_machine" "rke" {
   }
 
   os_profile {
-    computer_name  = "worker-${count.index}"
+    computer_name  = "rke-node-${count.index}"
     admin_username = var.administrator_username
   }
 
@@ -90,7 +103,8 @@ resource "azurerm_virtual_machine" "rke" {
 
     ssh_keys {
       path     = "/home/${var.administrator_username}/.ssh/authorized_keys"
-      key_data = file("~/.ssh/id_rsa.pub")
+      key_data = tls_private_key.ssh.public_key_openssh
+      # key_data = file("~/.ssh/id_rsa.pub")
     }
   }
 
@@ -103,11 +117,13 @@ resource "azurerm_virtual_machine" "rke" {
       host        = azurerm_network_interface.rke[count.index].private_ip_address
       type        = "ssh"
       user        = var.administrator_username
-      private_key = file("~/.ssh/id_rsa")
+      private_key = tls_private_key.ssh.private_key_pem
+      # private_key = file("~/.ssh/id_rsa")
 
       bastion_host        = azurerm_public_ip.frontend.ip_address
       bastion_user        = var.administrator_username
-      bastion_private_key = file("~/.ssh/id_rsa")
+      bastion_private_key = tls_private_key.ssh.private_key_pem
+      # bastion_private_key = file("~/.ssh/id_rsa")
     }
   }
   depends_on = [azurerm_virtual_machine.bastion]
@@ -127,14 +143,6 @@ resource "azurerm_availability_set" "bastion" {
   #   environment = "Production"
   # }
 }
-
-# Public IP
-# resource "azurerm_public_ip" "bastion" {
-#   name                = "pip-bastion-1"
-#   location            = azurerm_resource_group.resourcegroup.location
-#   resource_group_name = azurerm_resource_group.resourcegroup.name
-#   allocation_method   = "Static"
-# }
 
 # Network Interface
 resource "azurerm_network_interface" "bastion" {
@@ -181,14 +189,6 @@ resource "azurerm_virtual_machine" "bastion" {
     managed_disk_type = "Standard_LRS"
   }
 
-  # storage_data_disk {
-  #   name            = element(azurerm_managed_disk.control_plane.*.name, count.index)
-  #   managed_disk_id = element(azurerm_managed_disk.control_plane.*.id, count.index)
-  #   create_option   = "Attach"
-  #   lun             = 1
-  #   disk_size_gb    = element(azurerm_managed_disk.control_plane.*.disk_size_gb, count.index)
-  # }
-
   os_profile {
     computer_name  = "bastion-1"
     admin_username = var.administrator_username
@@ -199,12 +199,14 @@ resource "azurerm_virtual_machine" "bastion" {
 
     ssh_keys {
       path     = "/home/${var.administrator_username}/.ssh/authorized_keys"
-      key_data = file("~/.ssh/id_rsa.pub")
+      key_data = tls_private_key.ssh.public_key_openssh
+      # key_data = file("~/.ssh/id_rsa.pub")
     }
   }
 
   provisioner "file" {
-    source      = "~/.ssh/id_rsa"
+    content = tls_private_key.ssh.private_key_pem
+    # source      = "~/.ssh/id_rsa"
     destination = "/home/${var.administrator_username}/.ssh/id_rsa"
 
     connection {
@@ -212,7 +214,8 @@ resource "azurerm_virtual_machine" "bastion" {
       # host        = azurerm_public_ip.bastion.ip_address
       type        = "ssh"
       user        = var.administrator_username
-      private_key = file("~/.ssh/id_rsa")
+      private_key = tls_private_key.ssh.private_key_pem
+      # private_key = file("~/.ssh/id_rsa")
     }
   }
 
@@ -226,115 +229,9 @@ resource "azurerm_virtual_machine" "bastion" {
       # host        = azurerm_public_ip.bastion.ip_address
       type        = "ssh"
       user        = var.administrator_username
-      private_key = file("~/.ssh/id_rsa")
+      private_key = tls_private_key.ssh.private_key_pem
+      # private_key = file("~/.ssh/id_rsa")
     }
   }
   depends_on = [azurerm_lb.frontend]
 }
-
-# ################################
-# # Nodes - etcd
-# ################################
-
-# # Data disk
-# resource "azurerm_managed_disk" "etcd" {
-#   count                = var.rke_etcd_count
-#   name                 = "disk-etcd-data-${count.index}"
-#   location             = azurerm_resource_group.resourcegroup.location
-#   resource_group_name  = azurerm_resource_group.resourcegroup.name
-#   storage_account_type = "Standard_LRS"
-#   create_option        = "Empty"
-#   disk_size_gb         = "1023"
-# }
-
-# # Network Interface
-# resource "azurerm_network_interface" "etcd" {
-#   count               = var.rke_etcd_count
-#   name                = "nic-etcd-${count.index}"
-#   location            = azurerm_resource_group.resourcegroup.location
-#   resource_group_name = azurerm_resource_group.resourcegroup.name
-
-#   ip_configuration {
-#     name                          = "ip-configuration-etcd-${count.index}"
-#     subnet_id                     = azurerm_subnet.subnet.id
-#     public_ip_address_id          = element(azurerm_public_ip.etcd.*.id, count.index)
-#     private_ip_address_allocation = "dynamic"
-#   }
-# }
-
-# # NSG Association
-# resource "azurerm_network_interface_security_group_association" "etcd" {
-#   count                     = var.rke_etcd_count
-#   network_interface_id      = element(azurerm_network_interface.etcd.*.id, count.index)
-#   network_security_group_id = azurerm_network_security_group.etcd.id
-# }
-
-# # Public IP
-# resource "azurerm_public_ip" "etcd" {
-#   count               = var.rke_etcd_count
-#   name                = "pip-etcd-${count.index}"
-#   location            = azurerm_resource_group.resourcegroup.location
-#   resource_group_name = azurerm_resource_group.resourcegroup.name
-#   allocation_method   = "Static"
-# }
-
-# # Virtual Machine
-# resource "azurerm_virtual_machine" "etcd" {
-#   count                            = var.rke_etcd_count
-#   name                             = "node-etcd-${count.index}"
-#   location                         = azurerm_resource_group.resourcegroup.location
-#   resource_group_name              = azurerm_resource_group.resourcegroup.name
-#   network_interface_ids            = [element(azurerm_network_interface.etcd.*.id, count.index)]
-#   vm_size                          = var.etcd_node_vm_size
-#   delete_os_disk_on_termination    = true
-#   delete_data_disks_on_termination = true
-
-#   storage_image_reference {
-#     publisher = "Canonical"
-#     offer     = "UbuntuServer"
-#     sku       = "16.04-LTS"
-#     version   = "latest"
-#   }
-
-#   storage_os_disk {
-#     name              = "disk-etcd-os-${count.index}"
-#     caching           = "ReadWrite"
-#     create_option     = "FromImage"
-#     managed_disk_type = "Standard_LRS"
-#   }
-
-#   storage_data_disk {
-#     name            = element(azurerm_managed_disk.etcd.*.name, count.index)
-#     managed_disk_id = element(azurerm_managed_disk.etcd.*.id, count.index)
-#     create_option   = "Attach"
-#     lun             = 1
-#     disk_size_gb    = element(azurerm_managed_disk.etcd.*.disk_size_gb, count.index)
-#   }
-
-#   os_profile {
-#     computer_name  = "etcd-${count.index}"
-#     admin_username = var.administrator_username
-#   }
-
-#   os_profile_linux_config {
-#     disable_password_authentication = true
-
-#     ssh_keys {
-#       path     = "/home/${var.administrator_username}/.ssh/authorized_keys"
-#       key_data = file("~/.ssh/id_rsa.pub")
-#     }
-#   }
-
-#   provisioner "remote-exec" {
-#     inline = [
-#       "curl https://releases.rancher.com/install-docker/${var.docker_version}.sh | sh && sudo usermod -a -G docker ${var.administrator_username}",
-#     ]
-
-#     connection {
-#       host        = azurerm_public_ip.etcd[count.index].ip_address
-#       type        = "ssh"
-#       user        = var.administrator_username
-#       private_key = file("~/.ssh/id_rsa")
-#     }
-#   }
-# }
