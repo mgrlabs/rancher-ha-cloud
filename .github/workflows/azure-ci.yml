@@ -19,6 +19,7 @@ jobs:
       - uses: secrethub/actions/env-export@v0.1.0
         env:
           SECRETHUB_CREDENTIAL: ${{ secrets.SECRETHUB_CREDENTIAL }}
+          AZURE_TEST_MGR: secrethub://azure/dev/azureTest
       - name: Print environment with masked secrets
         run: env | sort
       # - name: 'Terraform Init'
