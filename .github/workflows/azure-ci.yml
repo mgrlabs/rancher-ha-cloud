@@ -16,7 +16,8 @@ jobs:
       #   uses: azure/login@v1
       #   with:
       #     creds: ${{ secrets.AZURE_SUB_MPN }}
-      - uses: secrethub/actions/env-export@v0.1.0
+      - name: "SecretHub: Export envrionment-specific secrets"
+        uses: secrethub/actions/env-export@v0.1.0
         env:
           SECRETHUB_CREDENTIAL: ${{ secrets.SECRETHUB_CREDENTIAL }}
           AZURE_TEST_MGR: secrethub://azure/dev/azureTest
