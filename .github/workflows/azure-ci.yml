@@ -20,7 +20,7 @@ jobs:
         env:
           SECRETHUB_CREDENTIAL: ${{ secrets.SECRETHUB_CREDENTIAL }}
       - name: Print environment with masked secrets
-        run: printenv
+        run: env | sort
       # - name: 'Terraform Init'
       #   uses: hashicorp/terraform-github-actions@master
       #   with:
