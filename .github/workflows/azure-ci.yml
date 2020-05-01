@@ -13,6 +13,6 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_SUB_MPN }}
       - run: |
-          env | sort
+          jq --version
         env:
           AZURE_ENV: ${{ secrets.AZURE_SUB_MPN }}
