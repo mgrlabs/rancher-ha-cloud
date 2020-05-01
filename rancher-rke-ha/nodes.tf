@@ -104,7 +104,6 @@ resource "azurerm_virtual_machine" "rke" {
     ssh_keys {
       path     = "/home/${var.administrator_username}/.ssh/authorized_keys"
       key_data = tls_private_key.ssh.public_key_openssh
-      # key_data = file("~/.ssh/id_rsa.pub")
     }
   }
 
@@ -118,12 +117,10 @@ resource "azurerm_virtual_machine" "rke" {
       type        = "ssh"
       user        = var.administrator_username
       private_key = tls_private_key.ssh.private_key_pem
-      # private_key = file("~/.ssh/id_rsa")
 
       bastion_host        = azurerm_public_ip.frontend.ip_address
       bastion_user        = var.administrator_username
       bastion_private_key = tls_private_key.ssh.private_key_pem
-      # bastion_private_key = file("~/.ssh/id_rsa")
     }
   }
   depends_on = [azurerm_virtual_machine.bastion]
