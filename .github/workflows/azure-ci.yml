@@ -22,6 +22,8 @@ jobs:
           AZURE_TEST_MGR: secrethub://azure/dev/azureTest
       - name: Print environment with masked secrets
         run: env | sort
+      - name: Print environment with masked secrets
+        run: $AZURE_TEST_MGR
       # - name: 'Terraform Init'
       #   uses: hashicorp/terraform-github-actions@master
       #   with:
