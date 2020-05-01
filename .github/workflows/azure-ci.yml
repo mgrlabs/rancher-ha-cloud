@@ -1,16 +1,13 @@
 on: [push]
 
-name: AzureLoginSample
+name: Azure Login
 
 jobs:
-
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
-
-    - uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-    - run: |
-        az account list
+      - shell: bash
+        env:
+          SUPER_SECRET: ${{ secrets.SuperSecret }}
+        run: |
+          ${{ secrets.SuperSecret }}
