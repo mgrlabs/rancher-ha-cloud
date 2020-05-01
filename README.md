@@ -1,4 +1,4 @@
-# rancher-rke-azure TEST
+# rancher-rke-azure
 
 # References
 
