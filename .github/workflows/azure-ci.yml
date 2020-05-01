@@ -9,6 +9,8 @@ env:
 jobs:
   dev:
     runs-on: ubuntu-latest
+    env:
+      AAADEV_TEST: ${{ github.job }}
     steps:
       - name: checkout
         uses: actions/checkout@v2
@@ -16,8 +18,9 @@ jobs:
         uses: secrethub/actions/env-export@v0.1.0
         env:
           SECRETHUB_CREDENTIAL: ${{ secrets.SECRETHUB_CREDENTIAL }}
-          AZURE_TEST_MGR: secrethub://azure/${{ github.job }}/azureTest
-          # AZURE_TEST_MGR: secrethub://azure/dev/azureTest
+          ARM_TENANT_ID: secrethub://azure/${{ github.job }}/azureTest
+          ARM_CLIENT_ID: secrethub://azure/${{ github.job }}/azureTest
+          ARM_CLIENT_SECRET: secrethub://azure/${{ github.job }}/azureTest
       - name: Print environment with masked secrets
         run: env | sort
         env:
