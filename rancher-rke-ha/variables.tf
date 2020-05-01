@@ -1,12 +1,13 @@
 variable "company_prefix" {
   type        = string
-  default     = "servian-rancher-demo"
+  default     = "mgr-rancher-demo"
   description = "(Required) Prefix given to all globally unique names"
 }
 
 variable "location" {
   type        = string
   description = "(Required) Specifies the supported Azure location where the resource exists. Changing this forces a new resource to be created."
+  default     = "Australia East"
 }
 
 variable "azure_resource_group" {
@@ -21,10 +22,10 @@ variable "docker_version" {
   description = "Version of Docker to use to provision Rancher"
 }
 
-variable "azure_service_principal" {
-  type        = map
-  description = "Azure Service Principal under which Terraform will be executed."
-}
+# variable "azure_service_principal" {
+#   type        = map
+#   description = "Azure Service Principal under which Terraform will be executed."
+# }
 
 variable "rke_node_vm_size" {
   type        = string
@@ -53,7 +54,7 @@ variable "administrator_username" {
   type        = string
   description = "Administrator account name on the linux nodes."
 
-  default = "serviandemo"
+  default = "mgrdemo"
 }
 
 variable "loadbalancer_dns_prefix" {
