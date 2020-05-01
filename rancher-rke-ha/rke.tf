@@ -16,10 +16,10 @@ data "template_file" "rke" {
     load_balancer_fqdn     = azurerm_public_ip.frontend.fqdn
     rke_cluster_name       = var.loadbalancer_dns_prefix
     bastion_public_ip      = azurerm_public_ip.frontend.ip_address
-    azure_tenant_id        = var.azure_service_principal.tenant_id
-    azure_subscription_id  = var.azure_service_principal.subscription_id
-    azure_client_id        = var.azure_service_principal.client_id
-    azure_client_secret    = var.azure_service_principal.client_secret
+    # azure_tenant_id        = var.azure_service_principal.tenant_id
+    # azure_subscription_id  = var.azure_service_principal.subscription_id
+    # azure_client_id        = var.azure_service_principal.client_id
+    # azure_client_secret    = var.azure_service_principal.client_secret
   }
 }
 
