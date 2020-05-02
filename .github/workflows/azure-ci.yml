@@ -21,8 +21,6 @@ jobs:
           SECRETHUB_CREDENTIAL: ${{ secrets.secretHubServiceAccount }}
           ARM_CLIENT_ID: secrethub://azure/demo/${{ github.job }}/clientId
           ARM_CLIENT_SECRET: secrethub://azure/demo/${{ github.job }}/clientSecret
-      - name: "DEBUG: Print environment"
-        run: env | sort
       - name: 'Terraform: Init'
         uses: hashicorp/terraform-github-actions@master
         with:
@@ -45,7 +43,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: terraform
-          path: ${{ env.tf_working_dir }}
+          path: ['${{ env.tf_working_dir }}/*.tf', '!${{ env.tf_working_dir }}/.*']
   # prod:
   #   runs-on: ubuntu-latest
   #   env:
