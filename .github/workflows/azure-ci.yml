@@ -1,8 +1,9 @@
 on: [push]
 
-name: Azure Login
+name: Rancher Deploy
 
 env:
+  ARM_TENANT_ID: ${{ secrets.azureTenantId }}
   tf_version: 'latest'
   tf_working_dir: './rancher-rke-ha'
 
@@ -10,42 +11,39 @@ jobs:
   dev:
     runs-on: ubuntu-latest
     env:
-      AAADEV_TEST: ${{ github.job }}
+      ARM_SUBSCRIPTION_ID: 9fb3f95f-3d85-461a-b6ec-27451807a387
     steps:
-      - name: checkout
+      - name: "Git: Checkout Repo"
         uses: actions/checkout@v2
       - name: "SecretHub: Export envrionment-specific secrets"
         uses: secrethub/actions/env-export@v0.1.0
         env:
           SECRETHUB_CREDENTIAL: ${{ secrets.SECRETHUB_CREDENTIAL }}
-          ARM_TENANT_ID: secrethub://azure/${{ github.job }}/azureTest
-          ARM_CLIENT_ID: secrethub://azure/${{ github.job }}/azureTest
-          ARM_CLIENT_SECRET: secrethub://azure/${{ github.job }}/azureTest
-      - name: Print environment with masked secrets
+          ARM_CLIENT_ID: secrethub://azure/${{ github.job }}/clientId
+          ARM_CLIENT_SECRET: secrethub://azure/${{ github.job }}/clientSecret
+      - name: "Debug: Print environment"
         run: env | sort
+      # - name: Print environment with masked secrets
+      #   run: $AZURE_TEST_MGR
+      - name: 'Terraform Init'
+        uses: hashicorp/terraform-github-actions@master
+        with:
+          tf_actions_subcommand: 'init'
+          tf_actions_version: ${{ env.tf_version }}
+          tf_actions_working_dir: ${{ env.tf_working_dir }}
+          tf_actions_comment: true
+      - name: 'Terraform Plan'
+        uses: hashicorp/terraform-github-actions@master
+        with:
+          tf_actions_subcommand: 'plan'
+          tf_actions_version: ${{ env.tf_version }}
+          tf_actions_working_dir: ${{ env.tf_working_dir }}
+          tf_actions_comment: true
         env:
-          AAATEST: ${{ github.job }}
-      - name: Print environment with masked secrets
-        run: $AZURE_TEST_MGR
-      # - name: 'Terraform Init'
-      #   uses: hashicorp/terraform-github-actions@master
-      #   with:
-      #     tf_actions_subcommand: 'init'
-      #     tf_actions_version: ${{ env.tf_version }}
-      #     tf_actions_working_dir: ${{ env.tf_working_dir }}
-      #     tf_actions_comment: true
-      # - name: 'Terraform Plan'
-      #   uses: hashicorp/terraform-github-actions@master
-      #   with:
-      #     tf_actions_subcommand: 'plan'
-      #     tf_actions_version: ${{ env.tf_version }}
-      #     tf_actions_working_dir: ${{ env.tf_working_dir }}
-      #     tf_actions_comment: true
-      #   env:
-      #     ARM_CLIENT_ID: ${{ secrets.azureClientId }}
-      #     ARM_CLIENT_SECRET: ${{ secrets.azureClientSecret }}
-      #     ARM_SUBSCRIPTION_ID: ${{ secrets.azureSubscriptionId }}
-      #     ARM_TENANT_ID: ${{ secrets.azureTenantId }}
+          ARM_CLIENT_ID: ${{ env.azureClientId }}
+          ARM_CLIENT_SECRET: ${{ env.azureClientSecret }}
+          ARM_SUBSCRIPTION_ID: ${{ env.azureSubscriptionId }}
+          ARM_TENANT_ID: ${{ env.azureTenantId }}
       # - name: 'Terraform Apply'
       #   uses: hashicorp/terraform-github-actions@master
       #   with:
