@@ -13,18 +13,16 @@ jobs:
     env:
       ARM_SUBSCRIPTION_ID: 9fb3f95f-3d85-461a-b6ec-27451807a387
     steps:
-      - name: "${{ github.job }}: Checkout Repo"
+      - name: "Git: Checkout Repo"
         uses: actions/checkout@v2
       - name: "SecretHub: Export envrionment-specific secrets"
         uses: secrethub/actions/env-export@v0.1.0
         env:
-          SECRETHUB_CREDENTIAL: ${{ secrets.SECRETHUB_CREDENTIAL }}
-          ARM_CLIENT_ID: secrethub://azure/${{ github.job }}/clientId
-          ARM_CLIENT_SECRET: secrethub://azure/${{ github.job }}/clientSecret
-      - name: "${{ github.job }}: Print environment"
+          SECRETHUB_CREDENTIAL: ${{ secrets.secretHubServiceAccount }}
+          ARM_CLIENT_ID: secrethub://azure/demo/${{ github.job }}/clientId
+          ARM_CLIENT_SECRET: secrethub://azure/demo/${{ github.job }}/clientSecret
+      - name: "DEBUG: Print environment"
         run: env | sort
-      # - name: Print environment with masked secrets
-      #   run: $AZURE_TEST_MGR
       - name: 'Terraform Init'
         uses: hashicorp/terraform-github-actions@master
         with:
@@ -32,7 +30,7 @@ jobs:
           tf_actions_version: ${{ env.tf_version }}
           tf_actions_working_dir: ${{ env.tf_working_dir }}
           tf_actions_comment: true
-      - name: '${{ github.job }}: Terraform Plan'
+      - name: 'Terraform: Plan'
         uses: hashicorp/terraform-github-actions@master
         with:
           tf_actions_subcommand: 'plan'
@@ -49,26 +47,26 @@ jobs:
     env:
       ARM_SUBSCRIPTION_ID: 623aabe5-748d-4b15-be89-3119e247a9fd
     steps:
-      - name: "${{ github.job }}: Checkout Repo"
+      - name: "Git: Checkout Repo"
         uses: actions/checkout@v2
       - name: "SecretHub: Export envrionment-specific secrets"
         uses: secrethub/actions/env-export@v0.1.0
         env:
-          SECRETHUB_CREDENTIAL: ${{ secrets.SECRETHUB_CREDENTIAL }}
-          ARM_CLIENT_ID: secrethub://azure/${{ github.job }}/clientId
-          ARM_CLIENT_SECRET: secrethub://azure/${{ github.job }}/clientSecret
+          SECRETHUB_CREDENTIAL: ${{ secrets.secretHubServiceAccount }}
+          ARM_CLIENT_ID: secrethub://azure/demo/${{ github.job }}/clientId
+          ARM_CLIENT_SECRET: secrethub://azure/demo/${{ github.job }}/clientSecret
       - name: "${{ github.job }}: Print environment"
         run: env | sort
       # - name: Print environment with masked secrets
       #   run: $AZURE_TEST_MGR
-      - name: '${{ github.job }}: Terraform Init'
+      - name: 'Terraform: Init'
         uses: hashicorp/terraform-github-actions@master
         with:
           tf_actions_subcommand: 'init'
           tf_actions_version: ${{ env.tf_version }}
           tf_actions_working_dir: ${{ env.tf_working_dir }}
           tf_actions_comment: true
-      - name: '${{ github.job }}: Terraform Plan'
+      - name: 'Terraform: Plan'
         uses: hashicorp/terraform-github-actions@master
         with:
           tf_actions_subcommand: 'plan'
