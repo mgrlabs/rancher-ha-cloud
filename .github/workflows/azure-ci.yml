@@ -40,10 +40,10 @@ jobs:
           tf_actions_working_dir: ${{ env.tf_working_dir }}
           tf_actions_comment: true
         env:
-          ARM_CLIENT_ID: ${{ env.azureClientId }}
-          ARM_CLIENT_SECRET: ${{ env.azureClientSecret }}
-          ARM_SUBSCRIPTION_ID: ${{ env.azureSubscriptionId }}
-          ARM_TENANT_ID: ${{ env.azureTenantId }}
+          ARM_CLIENT_ID: ${{ env.ARM_CLIENT_ID }}
+          ARM_CLIENT_SECRET: ${{ env.ARM_CLIENT_SECRET }}
+          ARM_SUBSCRIPTION_ID: ${{ env.ARM_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ env.ARM_TENANT_ID }}
       # - name: 'Terraform Apply'
       #   uses: hashicorp/terraform-github-actions@master
       #   with:
