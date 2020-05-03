@@ -5,7 +5,7 @@ name: Rancher Deploy
 env:
   ARM_TENANT_ID: ${{ secrets.azureTenantId }}
   tf_version: 'latest'
-  tf_working_dir: './rancher-rke-ha'
+  tf_working_dir: './terraform'
 
 jobs:
 
