@@ -3,7 +3,7 @@ on: [push]
 name: Rancher Deploy
 
 env:
-  ARM_TENANT_ID: ${{ secrets.azureTenantId }}
+  # ARM_TENANT_ID: ${{ secrets.azureTenantId }}
   tf_version: 'latest'
   tf_working_dir: './terraform'
 
@@ -36,9 +36,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     if: github.ref == 'refs/heads/develop'
-    env:
-      ARM_SUBSCRIPTION_ID: 9fb3f95f-3d85-461a-b6ec-27451807a387
-      environment: 'TestDev'
     steps:
       - run: env | sort
       - name: "Git: Checkout Repo"
@@ -47,8 +44,10 @@ jobs:
         uses: secrethub/actions/env-export@v0.1.0
         env:
           SECRETHUB_CREDENTIAL: ${{ secrets.secretHubServiceAccount }}
+          ARM_TENANT_ID: secrethub://azure/demo/${{ github.job }}/tenantId
           ARM_CLIENT_ID: secrethub://azure/demo/${{ github.job }}/clientId
           ARM_CLIENT_SECRET: secrethub://azure/demo/${{ github.job }}/clientSecret
+          ARM_SUBSCRIPTION_ID: secrethub://azure/demo/${{ github.job }}/subscriptionId
       - name: 'Terraform: Init'
         uses: hashicorp/terraform-github-actions@master
         with:
@@ -81,8 +80,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     if: github.ref == 'refs/heads/master'
-    env:
-      ARM_SUBSCRIPTION_ID: 623aabe5-748d-4b15-be89-3119e247a9fd
     steps:
       - name: "Git: Checkout Repo"
         uses: actions/checkout@v2
@@ -90,8 +87,10 @@ jobs:
         uses: secrethub/actions/env-export@v0.1.0
         env:
           SECRETHUB_CREDENTIAL: ${{ secrets.secretHubServiceAccount }}
+          ARM_TENANT_ID: secrethub://azure/demo/${{ github.job }}/tenantId
           ARM_CLIENT_ID: secrethub://azure/demo/${{ github.job }}/clientId
           ARM_CLIENT_SECRET: secrethub://azure/demo/${{ github.job }}/clientSecret
+          ARM_SUBSCRIPTION_ID: secrethub://azure/demo/${{ github.job }}/subscriptionId
       - name: 'Terraform: Init'
         uses: hashicorp/terraform-github-actions@master
         with:
