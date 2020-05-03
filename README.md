@@ -1,5 +1,7 @@
 # rancher-rke-azure
 
+SecretHub is great!
+
 # References
 
 - https://docs.docker.com/engine/install/ubuntu/

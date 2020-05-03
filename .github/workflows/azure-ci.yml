@@ -81,6 +81,7 @@ jobs:
     needs: test
     if: github.ref == 'refs/heads/master'
     steps:
+      - run: env | sort
       - name: "Git: Checkout Repo"
         uses: actions/checkout@v2
       - name: "SecretHub: Export envrionment-specific secrets"
