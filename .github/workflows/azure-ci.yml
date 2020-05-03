@@ -12,6 +12,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      - run: terraform fmt -check -recursive -diff
       - name: 'Test: Terraform Format'
         uses: hashicorp/terraform-github-actions@master
         with:
@@ -30,7 +31,7 @@ jobs:
   dev:
     runs-on: ubuntu-latest
     needs: test
-    if: github.ref != 'refs/heads/master'
+    if: github.ref == 'refs/heads/develop'
     env:
       ARM_SUBSCRIPTION_ID: 9fb3f95f-3d85-461a-b6ec-27451807a387
       environment: 'TestDev'
