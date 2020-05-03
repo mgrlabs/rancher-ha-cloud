@@ -29,6 +29,7 @@ jobs:
 
   dev:
     runs-on: ubuntu-latest
+    needs: test
     if: github.ref != 'refs/heads/master'
     env:
       ARM_SUBSCRIPTION_ID: 9fb3f95f-3d85-461a-b6ec-27451807a387
@@ -73,6 +74,7 @@ jobs:
 
   prod:
     runs-on: ubuntu-latest
+    needs: test
     if: github.ref == 'refs/heads/master'
     env:
       ARM_SUBSCRIPTION_ID: 623aabe5-748d-4b15-be89-3119e247a9fd
