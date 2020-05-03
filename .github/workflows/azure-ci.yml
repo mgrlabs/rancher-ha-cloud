@@ -5,9 +5,28 @@ name: Rancher Deploy
 env:
   ARM_TENANT_ID: ${{ secrets.azureTenantId }}
   tf_version: 'latest'
-  tf_working_dir: './rancher-rke-ha'
+  tf_working_dir: './terraform'
 
 jobs:
+
+############################
+# Tests
+############################
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: terraform fmt -check -recursive -diff
+      - name: 'Test: Terraform Format'
+        uses: hashicorp/terraform-github-actions@master
+        with:
+          tf_actions_subcommand: 'fmt'
+          tf_actions_version: ${{ env.tf_version }}
+          tf_actions_working_dir: ${{ env.tf_working_dir }}
+          tf_actions_comment: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # terraform fmt -check -recursive -diff
 
 ############################
 # Deploy to Production
@@ -15,7 +34,8 @@ jobs:
 
   dev:
     runs-on: ubuntu-latest
-    if: github.ref != 'refs/heads/master'
+    needs: test
+    if: github.ref == 'refs/heads/develop'
     env:
       ARM_SUBSCRIPTION_ID: 9fb3f95f-3d85-461a-b6ec-27451807a387
       environment: 'TestDev'
@@ -59,6 +79,7 @@ jobs:
 
   prod:
     runs-on: ubuntu-latest
+    needs: test
     if: github.ref == 'refs/heads/master'
     env:
       ARM_SUBSCRIPTION_ID: 623aabe5-748d-4b15-be89-3119e247a9fd
