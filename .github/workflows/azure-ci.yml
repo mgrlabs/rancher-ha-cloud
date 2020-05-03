@@ -8,8 +8,14 @@ env:
   tf_working_dir: './rancher-rke-ha'
 
 jobs:
+
+############################
+# Deploy to Production
+############################
+
   dev:
     runs-on: ubuntu-latest
+    if: github.ref != 'refs/heads/master'
     env:
       ARM_SUBSCRIPTION_ID: 9fb3f95f-3d85-461a-b6ec-27451807a387
     steps:
@@ -44,6 +50,11 @@ jobs:
         with:
           name: terraform
           path: '${{ env.tf_working_dir }}/*.tf'
+
+############################
+# Deploy to Production
+############################
+
   prod:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
