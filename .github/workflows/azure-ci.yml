@@ -62,7 +62,9 @@ jobs:
     if: github.ref == 'refs/heads/master'
     env:
       ARM_SUBSCRIPTION_ID: 623aabe5-748d-4b15-be89-3119e247a9fd
+      environment: 'TestDev'
     steps:
+      - run: env | sort
       - name: "Git: Checkout Repo"
         uses: actions/checkout@v2
       - name: "SecretHub: Export envrionment-specific secrets"
