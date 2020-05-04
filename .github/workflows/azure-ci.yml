@@ -42,7 +42,7 @@ jobs:
         if: github.ref == 'refs/heads/master'
         run: |
           echo "::set-env name=deployEnvironment::prod"
-      - run: echo $deployEnvironment
+      - run: env | sort
       - name: "Git: Checkout Repo"
         uses: actions/checkout@v2
       - name: "SecretHub: Export envrionment-specific secrets"
