@@ -1,4 +1,11 @@
-on: [push]
+on:
+  push:
+    branches:
+      - master
+      - develop
+  pull_request:
+    branches:
+      - develop
 
 name: rancher-rke-azure
 
@@ -30,7 +37,7 @@ jobs:
           tf_actions_working_dir: ${{ env.tf_working_dir }}
           tf_actions_comment: true
 
-      - name: 'Test: Terraform Format - Action'
+      - name: 'Test: Terraform Format'
         uses: hashicorp/terraform-github-actions@v0.8.0
         with:
           tf_actions_subcommand: 'fmt'
