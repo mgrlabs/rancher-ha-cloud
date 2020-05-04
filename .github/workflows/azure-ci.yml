@@ -36,7 +36,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: test
-    if: github.ref != 'refs/heads/feature/*'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
     steps:
       - name: 'Environment: Conditional'
         if: github.ref == 'refs/heads/master'
