@@ -4,28 +4,28 @@ provider "rke" {
 
 resource "rke_cluster" "cluster" {
   nodes {
-    address = "40.126.228.127"
-    internal_address = "10.0.1.4"
+    address           = "40.126.228.127"
+    internal_address  = "10.0.1.4"
     hostname_override = "node-worker-0"
-    user    = "mgradmin"
-    role    = ["worker"]
-    ssh_key = file("~/.ssh/id_rsa")
+    user              = "mgradmin"
+    role              = ["worker"]
+    ssh_key           = file("~/.ssh/id_rsa")
   }
   nodes {
-    address = "23.101.214.218"
-    internal_address = "10.0.1.6"
+    address           = "23.101.214.218"
+    internal_address  = "10.0.1.6"
     hostname_override = "node-controlplane-0"
-    user    = "mgradmin"
-    role    = ["controlplane"]
-    ssh_key = file("~/.ssh/id_rsa")
+    user              = "mgradmin"
+    role              = ["controlplane"]
+    ssh_key           = file("~/.ssh/id_rsa")
   }
   nodes {
-    address = "40.126.237.18"
-    internal_address = "10.0.1.5"
+    address           = "40.126.237.18"
+    internal_address  = "10.0.1.5"
     hostname_override = "node-etcd-0"
-    user    = "mgradmin"
-    role    = ["etcd"]
-    ssh_key = file("~/.ssh/id_rsa")
+    user              = "mgradmin"
+    role              = ["etcd"]
+    ssh_key           = file("~/.ssh/id_rsa")
   }
 }
 
