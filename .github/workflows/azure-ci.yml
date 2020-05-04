@@ -3,9 +3,10 @@ on: [push]
 name: Rancher Deploy
 
 env:
-  # ARM_TENANT_ID: ${{ secrets.azureTenantId }}
+  my_env_var: ${{ github.ref == 'refs/heads/develop' }}
   tf_version: 'latest'
   tf_working_dir: './terraform'
+  deployEnvironment: 'dev'
 
 jobs:
 
@@ -32,12 +33,16 @@ jobs:
 # Deploy to Production
 ############################
 
-  dev:
+  deploy:
     runs-on: ubuntu-latest
     needs: test
-    if: github.ref == 'refs/heads/develop'
+    if: github.ref != 'refs/heads/feature/*'
     steps:
-      - run: env | sort
+      - name: 'Environment: Conditional'
+        if: github.ref == 'refs/heads/master'
+        run: |
+          echo "::set-env name=deployEnvironment::prod"
+      - run: echo $deployEnvironment
       - name: "Git: Checkout Repo"
         uses: actions/checkout@v2
       - name: "SecretHub: Export envrionment-specific secrets"
@@ -45,9 +50,9 @@ jobs:
         env:
           SECRETHUB_CREDENTIAL: ${{ secrets.secretHubServiceAccount }}
           ARM_TENANT_ID: secrethub://azure/demo/tenantId
-          ARM_CLIENT_ID: secrethub://azure/demo/${{ github.job }}/clientId
-          ARM_CLIENT_SECRET: secrethub://azure/demo/${{ github.job }}/clientSecret
-          ARM_SUBSCRIPTION_ID: secrethub://azure/demo/${{ github.job }}/subscriptionId
+          ARM_CLIENT_ID: secrethub://azure/demo/${{ env.deployEnvironment }}/clientId
+          ARM_CLIENT_SECRET: secrethub://azure/demo/${{ env.deployEnvironment }}/clientSecret
+          ARM_SUBSCRIPTION_ID: secrethub://azure/demo/${{ env.deployEnvironment }}/subscriptionId
       - name: 'Terraform: Init'
         uses: hashicorp/terraform-github-actions@master
         with:
@@ -76,38 +81,38 @@ jobs:
 # Deploy to Production
 ############################
 
-  prod:
-    runs-on: ubuntu-latest
-    needs: test
-    if: github.ref == 'refs/heads/master'
-    steps:
-      - run: env | sort
-      - name: "Git: Checkout Repo"
-        uses: actions/checkout@v2
-      - name: "SecretHub: Export envrionment-specific secrets"
-        uses: secrethub/actions/env-export@v0.1.0
-        env:
-          SECRETHUB_CREDENTIAL: ${{ secrets.secretHubServiceAccount }}
-          ARM_TENANT_ID: secrethub://azure/demo/tenantId
-          ARM_CLIENT_ID: secrethub://azure/demo/${{ github.job }}/clientId
-          ARM_CLIENT_SECRET: secrethub://azure/demo/${{ github.job }}/clientSecret
-          ARM_SUBSCRIPTION_ID: secrethub://azure/demo/${{ github.job }}/subscriptionId
-      - name: 'Terraform: Init'
-        uses: hashicorp/terraform-github-actions@master
-        with:
-          tf_actions_subcommand: 'init'
-          tf_actions_version: ${{ env.tf_version }}
-          tf_actions_working_dir: ${{ env.tf_working_dir }}
-          tf_actions_comment: true
-      - name: 'Terraform: Plan'
-        uses: hashicorp/terraform-github-actions@master
-        with:
-          tf_actions_subcommand: 'plan'
-          tf_actions_version: ${{ env.tf_version }}
-          tf_actions_working_dir: ${{ env.tf_working_dir }}
-          tf_actions_comment: true
-        env:
-          ARM_CLIENT_ID: ${{ env.ARM_CLIENT_ID }}
-          ARM_CLIENT_SECRET: ${{ env.ARM_CLIENT_SECRET }}
-          ARM_SUBSCRIPTION_ID: ${{ env.ARM_SUBSCRIPTION_ID }}
-          ARM_TENANT_ID: ${{ env.ARM_TENANT_ID }}
+  # prod:
+  #   runs-on: ubuntu-latest
+  #   needs: test
+  #   if: github.ref == 'refs/heads/master'
+  #   steps:
+  #     - run: env | sort
+  #     - name: "Git: Checkout Repo"
+  #       uses: actions/checkout@v2
+  #     - name: "SecretHub: Export envrionment-specific secrets"
+  #       uses: secrethub/actions/env-export@v0.1.0
+  #       env:
+  #         SECRETHUB_CREDENTIAL: ${{ secrets.secretHubServiceAccount }}
+  #         ARM_TENANT_ID: secrethub://azure/demo/tenantId
+  #         ARM_CLIENT_ID: secrethub://azure/demo/${{ github.job }}/clientId
+  #         ARM_CLIENT_SECRET: secrethub://azure/demo/${{ github.job }}/clientSecret
+  #         ARM_SUBSCRIPTION_ID: secrethub://azure/demo/${{ github.job }}/subscriptionId
+  #     - name: 'Terraform: Init'
+  #       uses: hashicorp/terraform-github-actions@master
+  #       with:
+  #         tf_actions_subcommand: 'init'
+  #         tf_actions_version: ${{ env.tf_version }}
+  #         tf_actions_working_dir: ${{ env.tf_working_dir }}
+  #         tf_actions_comment: true
+  #     - name: 'Terraform: Plan'
+  #       uses: hashicorp/terraform-github-actions@master
+  #       with:
+  #         tf_actions_subcommand: 'plan'
+  #         tf_actions_version: ${{ env.tf_version }}
+  #         tf_actions_working_dir: ${{ env.tf_working_dir }}
+  #         tf_actions_comment: true
+  #       env:
+  #         ARM_CLIENT_ID: ${{ env.ARM_CLIENT_ID }}
+  #         ARM_CLIENT_SECRET: ${{ env.ARM_CLIENT_SECRET }}
+  #         ARM_SUBSCRIPTION_ID: ${{ env.ARM_SUBSCRIPTION_ID }}
+  #         ARM_TENANT_ID: ${{ env.ARM_TENANT_ID }}
