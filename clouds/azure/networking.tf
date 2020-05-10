@@ -258,7 +258,7 @@ resource "azurerm_network_security_group" "rancher" {
 ################################
 
 data "external" "whatismyip" {
-  program = ["${path.module}/../../scripts/whatismyip.sh"]
+  program = ["${path.root}/../scripts/what-is-my-ip.sh"]
 }
 
 resource "azurerm_network_security_group" "bastion" {

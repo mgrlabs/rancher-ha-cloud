@@ -1,8 +1,16 @@
+################################
+# Variables
+################################
+
+# Client Specific
+
 variable "company_prefix" {
   type        = string
   default     = "mgr"
   description = "(Required) Prefix given to all globally unique names."
 }
+
+# Cloud Region/Environment
 
 variable "arm_location" {
   type        = string
@@ -15,9 +23,7 @@ variable "environment" {
   description = "The envrionment the resources will be deployed into. e.g Dev, Test, Prod."
 }
 
-################################
 # Kubernetes
-################################
 
 variable "k8s_docker_version" {
   type        = string
@@ -42,9 +48,7 @@ variable "k8s_node_count" {
   description = "Number of Kubernetes nodes to deploy."
 }
 
-################################
 # Remote Admin
-################################
 
 variable "bastion_vm_size" {
   type        = string
@@ -53,6 +57,7 @@ variable "bastion_vm_size" {
 }
 
 # Administrator Credentials
+
 variable "admin_name" {
   type        = string
   description = "Administrator account name on the linux nodes."
