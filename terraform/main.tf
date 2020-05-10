@@ -3,14 +3,7 @@
 ################################
 
 provider "azurerm" {
-  # version = "=2.6.0"
-
-  # subscription_id = var.azure_service_principal.subscription_id
-  # client_id       = var.azure_service_principal.client_id
-  # client_secret   = var.azure_service_principal.client_secret
-  # tenant_id       = var.azure_service_principal.tenant_id
-  # environment     = var.azure_service_principal.environment
-
+  version = "=2.8.0"
   features {}
 }
 
@@ -19,6 +12,10 @@ provider "azurerm" {
 ################################
 
 resource "azurerm_resource_group" "resourcegroup" {
-  name     = var.azure_resource_group
-  location = var.location
+  name     = "rg-${var.company_prefix}-rancher-${var.environment}"
+  location = var.arm_location
+}
+
+data "external" "whatismyip" {
+  program = ["${path.module}/../scripts/whatismyip.sh"]
 }

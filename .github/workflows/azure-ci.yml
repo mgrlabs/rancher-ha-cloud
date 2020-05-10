@@ -60,7 +60,7 @@ jobs:
           # terraform fmt -check -recursive -diff
 
 ############################
-# Deploy to Production
+# Deploy to Environments
 ############################
 
   deploy:

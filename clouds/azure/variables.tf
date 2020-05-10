@@ -4,20 +4,14 @@ variable "company_prefix" {
   description = "(Required) Prefix given to all globally unique names."
 }
 
-variable "arm_client_secret" {
-  type        = string
-  description = "Secret for the supplied Service Principal."
-}
-
 variable "arm_location" {
   type        = string
-  description = "(Required) Specifies the supported Azure location where the resource exists. Changing this forces a new resource to be created."
   default     = "Australia East"
+  description = "(Required) Specifies the supported Azure location where the resource exists. Changing this forces a new resource to be created."
 }
 
 variable "environment" {
   type        = string
-  default     = "prod"
   description = "The envrionment the resources will be deployed into. e.g Dev, Test, Prod."
 }
 
@@ -46,7 +40,6 @@ variable "k8s_node_vm_size" {
 variable "k8s_node_count" {
   type        = string
   description = "Number of Kubernetes nodes to deploy."
-  default     = "1"
 }
 
 ################################
@@ -57,7 +50,6 @@ variable "bastion_vm_size" {
   type        = string
   description = "Azure VM size of the control plane nodes"
   default     = "Standard_B1ms"
-  # default = "Standard_D2s_v3"
 }
 
 # Administrator Credentials

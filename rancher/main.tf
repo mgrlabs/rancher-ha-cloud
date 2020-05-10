@@ -3,6 +3,15 @@ provider "rke" {
   version = "v1.0.0-rc5"
 }
 
+################################
+# Azure RM Provider
+################################
+
+provider "azurerm" {
+  version = "=2.8.0"
+  features {}
+}
+
 data "azurerm_client_config" "current" {
 }
 
@@ -13,29 +22,29 @@ data "azurerm_client_config" "current" {
 resource "rke_cluster" "cluster" {
   dynamic "nodes" {
     iterator = node
-    for_each = azurerm_virtual_machine.rke
+    for_each = module.azure_cluster.k8s_nodes_names
     content {
-      address           = azurerm_network_interface.rke[node.key].private_ip_address
-      hostname_override = azurerm_virtual_machine.rke[node.key].name
-      user              = var.admin_name
+      address           = module.azure_cluster.k8s_nodes_private_ips[node.key]
+      hostname_override = module.azure_cluster.k8s_nodes_names[node.key]
+      user              = module.azure_cluster.admin_name
       role              = ["controlplane", "worker", "etcd"]
-      ssh_key           = tls_private_key.ssh.private_key_pem
+      ssh_key           = module.azure_cluster.tls_private_key
     }
   }
 
   cluster_name = "${var.company_prefix}rancher${var.environment}"
 
   bastion_host {
-    address = azurerm_public_ip.frontend.ip_address
-    user    = var.admin_name
-    ssh_key = tls_private_key.ssh.private_key_pem
+    address = module.azure_cluster.bastion_node_public_ip
+    user    = module.azure_cluster.admin_name
+    ssh_key = module.azure_cluster.tls_private_key
     port    = 22
   }
 
   authentication {
     strategy = "x509"
     sans = [
-      azurerm_public_ip.frontend.fqdn,
+      module.azure_cluster.lb_rancher_fqdn,
     ]
   }
 
@@ -57,7 +66,7 @@ resource "rke_cluster" "cluster" {
     }
   }
   depends_on = [
-    azurerm_virtual_machine.rke
+    module.azure_cluster.k8s_nodes_names
   ]
 }
 
@@ -68,24 +77,8 @@ resource "rke_cluster" "cluster" {
 # Required for kubectl
 resource "local_file" "kube_cluster_yaml" {
   filename = "${path.root}/kube_config_cluster.yml"
-  content  = replace(rke_cluster.cluster.kube_config_yaml, "/server:.*/", "server: \"https://${azurerm_public_ip.frontend.fqdn}:6443\"")
+  content  = replace(rke_cluster.cluster.kube_config_yaml, "/server:.*/", "server: \"https://${module.azure_cluster.lb_rancher_fqdn}:6443\"")
 }
-
-################################
-# Cert-Manager CRDs
-################################
-
-# TO DO: Maybe implement this - https://github.com/banzaicloud/terraform-provider-k8s, kubernetes provider doesn't support static definitions
-# resource "null_resource" "cert_manager_crds" {
-#   provisioner "local-exec" {
-#     command = "kubectl --kubeconfig=${path.root}/kube_config_cluster.yml apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.14.1/cert-manager.crds.yaml"
-#   }
-
-#   depends_on = [
-#     rke_cluster.cluster,
-#     local_file.kube_cluster_yaml
-#   ]
-# }
 
 ################################
 # Kubernetes - Namespaces
@@ -93,7 +86,7 @@ resource "local_file" "kube_cluster_yaml" {
 
 provider "kubernetes" {
   load_config_file       = "false"
-  host                   = "https://${azurerm_public_ip.frontend.fqdn}:6443"
+  host                   = "https://${module.azure_cluster.lb_rancher_fqdn}:6443"
   username               = rke_cluster.cluster.kube_admin_user
   client_certificate     = rke_cluster.cluster.client_cert
   client_key             = rke_cluster.cluster.client_key
@@ -118,7 +111,7 @@ resource "kubernetes_namespace" "cert_manager" {
 
 provider "helm" {
   kubernetes {
-    host                   = "https://${azurerm_public_ip.frontend.fqdn}:6443"
+    host                   = "https://${module.azure_cluster.lb_rancher_fqdn}:6443"
     username               = rke_cluster.cluster.kube_admin_user
     client_certificate     = rke_cluster.cluster.client_cert
     client_key             = rke_cluster.cluster.client_key
@@ -126,23 +119,10 @@ provider "helm" {
   }
 }
 
-data "helm_repository" "cert_manager" {
-  name = "jetstack"
-  url  = "https://charts.jetstack.io"
-}
-
-data "helm_repository" "rancher_latest" {
-  name = "rancher-latest"
-  url  = "https://releases.rancher.com/server-charts/latest"
-}
-
-################################
 # Helm - Deploy Cert-Manager
-################################
-
 resource "helm_release" "cert_manager" {
   name       = "cert-manager"
-  repository = data.helm_repository.cert_manager.metadata[0].name
+  repository = "https://charts.jetstack.io"
   namespace  = "cert-manager"
   chart      = "cert-manager"
   version    = "v0.15.0"
@@ -158,13 +138,10 @@ resource "helm_release" "cert_manager" {
   ]
 }
 
-################################
 # Helm - Deploy Rancher
-################################
-
 resource "helm_release" "rancher" {
   name       = "rancher"
-  repository = data.helm_repository.rancher_latest.metadata[0].name
+  repository = "https://releases.rancher.com/server-charts/latest"
   namespace  = "cattle-system"
   chart      = "rancher"
   set {
@@ -173,7 +150,7 @@ resource "helm_release" "rancher" {
   }
   set {
     name  = "hostname"
-    value = azurerm_public_ip.frontend.fqdn
+    value = module.azure_cluster.lb_rancher_fqdn
   }
   set {
     name  = "auditLog.level"

@@ -1,9 +1,0 @@
-nodes:
-  <NODES>
-
-network:
-  plugin: canal
-
-ingress:
-  provider: nginx
-
