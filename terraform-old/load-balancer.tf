@@ -21,16 +21,16 @@ resource "azurerm_network_interface_nat_rule_association" "bastion" {
 
 # Public IP
 resource "azurerm_public_ip" "frontend" {
-  name                = "pip-lb-rancher"
+  name                = "pip-${var.company_prefix}-lb-rancher-${var.environment}"
   sku                 = "standard"
   location            = azurerm_resource_group.resourcegroup.location
   resource_group_name = azurerm_resource_group.resourcegroup.name
   allocation_method   = "Static"
-  domain_name_label   = var.loadbalancer_dns_prefix
+  domain_name_label   = "${var.company_prefix}rancher${var.environment}"
 }
 
 resource "azurerm_lb" "frontend" {
-  name                = "lb-rancher"
+  name                = "lb-${var.company_prefix}-rancher-${var.environment}"
   sku                 = "standard"
   location            = azurerm_resource_group.resourcegroup.location
   resource_group_name = azurerm_resource_group.resourcegroup.name
@@ -48,7 +48,7 @@ resource "azurerm_lb_backend_address_pool" "frontend" {
 }
 
 resource "azurerm_network_interface_backend_address_pool_association" "worker" {
-  count                   = var.rke_node_count
+  count                   = var.k8s_node_count
   network_interface_id    = element(azurerm_network_interface.rke.*.id, count.index)
   ip_configuration_name   = "ip-configuration-rke-${count.index}"
   backend_address_pool_id = azurerm_lb_backend_address_pool.frontend.id

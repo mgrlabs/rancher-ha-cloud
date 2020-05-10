@@ -12,7 +12,7 @@ name: rancher-rke-azure
 
 env:
   tf_version: 'latest'
-  tf_working_dir: './terraform'
+  tf_working_dir: './rancher'
   deployEnvironment: 'dev'
 
 jobs:
@@ -26,9 +26,6 @@ jobs:
     steps:
       - name: "Git: Checkout Repo"
         uses: actions/checkout@v2
-
-      # - name: 'Test: Terraform Format - Command Line'
-      #   run: terraform fmt -check -recursive -diff
 
       - name: 'Terraform: Init'
         uses: hashicorp/terraform-github-actions@v0.8.0
@@ -60,7 +57,7 @@ jobs:
           # terraform fmt -check -recursive -diff
 
 ############################
-# Deploy to Production
+# Deploy to Environments
 ############################
 
   deploy:

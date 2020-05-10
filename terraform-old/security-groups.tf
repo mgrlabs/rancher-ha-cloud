@@ -5,7 +5,7 @@
 # https://rancher.com/docs/rancher/v2.x/en/installation/requirements/
 
 resource "azurerm_network_security_group" "rke" {
-  name                = "nsg-rke-nodes"
+  name                = "nsg-${var.company_prefix}-rancher-${var.environment}"
   location            = azurerm_resource_group.resourcegroup.location
   resource_group_name = azurerm_resource_group.resourcegroup.name
 
@@ -121,19 +121,6 @@ resource "azurerm_network_security_group" "rke" {
     destination_address_prefix = "*"
   }
 
-  # security_rule {
-  #   name                       = "kubeproxy"
-  #   description                = "Inbound kubeproxy"
-  #   priority                   = 1005
-  #   direction                  = "Inbound"
-  #   access                     = "Allow"
-  #   protocol                   = "Tcp"
-  #   source_port_range          = "*"
-  #   destination_port_range     = "10256"
-  #   source_address_prefix      = "*"
-  #   destination_address_prefix = "*"
-  # }
-
   # NodePort port range
   security_rule {
     name                       = "NodePort-Services"
@@ -154,7 +141,7 @@ resource "azurerm_network_security_group" "rke" {
 ################################
 
 resource "azurerm_network_security_group" "bastion" {
-  name                = "nsg-bastion-node"
+  name                = "nsg-${var.company_prefix}-bastion-${var.environment}"
   location            = azurerm_resource_group.resourcegroup.location
   resource_group_name = azurerm_resource_group.resourcegroup.name
 
@@ -167,7 +154,7 @@ resource "azurerm_network_security_group" "bastion" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "22"
-    source_address_prefix      = "*"
+    source_address_prefixes    = ["${data.external.whatismyip.result["internet_ip"]}/32"]
     destination_address_prefix = "*"
   }
 }

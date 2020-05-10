@@ -1,5 +1,10 @@
 #!/bin/bash
 
+export PLATFORM=darwin_amd64
+export PROVIDER_VERSION=1.0.0-rc5
+curl -L "https://github.com/rancher/terraform-provider-rke/releases/download/${PROVIDER_VERSION}/terraform-provider-rke_darwin-amd64" -o ~/.terraform.d/plugins/darwin_amd64/terraform-provider-rke_v${PROVIDER_VERSION}
+chmod +x ~/.terraform.d/plugins/darwin_amd64/terraform-provider-rke_v${PROVIDER_VERSION}
+
 helm repo add rancher-latest https://releases.rancher.com/server-charts/latest
 helm repo add jetstack https://charts.jetstack.io
 helm repo update
@@ -14,10 +19,10 @@ helm --kubeconfig ./kube_config_cluster.yml install \
   --namespace cert-manager \
   --version v0.14.1
 
-helm --kubeconfig ./kube_config_cluster.yml upgrade rancher rancher-latest/rancher \
+helm --kubeconfig ./kube_config_cluster.yml upgrade rancher rancher-stable/rancher \
   --namespace cattle-system \
   --set ingress.tls.source="rancher" \
-  --set hostname="servianrancherdemo.australiaeast.cloudapp.azure.com" \
+  --set hostname="mgrlabsrancherprod.australiaeast.cloudapp.azure.com" \
   --set auditLog.level="1" \
   --set addLocal="true" \
   --wait
