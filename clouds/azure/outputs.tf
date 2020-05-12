@@ -32,3 +32,8 @@ output tls_private_key {
   sensitive   = true
   description = "SSH RSA Private key for bastion authentication."
 }
+
+output domain_name_prefix {
+  value       = azurerm_public_ip.frontend.domain_name_label
+  description = "description"
+}

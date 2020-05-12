@@ -6,7 +6,6 @@
 
 variable "company_prefix" {
   type        = string
-  default     = "mgr"
   description = "(Required) Prefix given to all globally unique names."
 }
 

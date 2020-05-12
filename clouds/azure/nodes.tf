@@ -1,7 +1,8 @@
 ################################
-# SSH Key
+# Rancher & Bastion Nodes
 ################################
 
+# RSA PKE for authentication
 resource "tls_private_key" "ssh" {
   algorithm = "RSA"
 }
@@ -12,7 +13,7 @@ resource "local_file" "ssh_private" {
 }
 
 ################################
-# Nodes - Rancher Nodes
+# Nodes - Rancher
 ################################
 
 # Availability Set
@@ -122,9 +123,8 @@ resource "azurerm_virtual_machine" "rancher" {
   depends_on = [azurerm_virtual_machine.bastion]
 }
 
-
 ################################
-# Node - Bastion Host
+# Node - Bastion
 ################################
 
 resource "azurerm_availability_set" "bastion" {

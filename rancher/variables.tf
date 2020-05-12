@@ -1,6 +1,6 @@
 variable "company_prefix" {
   type        = string
-  default     = "mgr"
+  default     = "mgrlabs"
   description = "(Required) Prefix given to all globally unique names."
 }
 
@@ -9,15 +9,15 @@ variable "arm_client_secret" {
   description = "Secret for the supplied Service Principal."
 }
 
-variable "arm_location" {
-  type        = string
-  description = "(Required) Specifies the supported Azure location where the resource exists. Changing this forces a new resource to be created."
-  default     = "Australia East"
-}
+# variable "arm_location" {
+#   type        = string
+#   description = "(Required) Specifies the supported Azure location where the resource exists. Changing this forces a new resource to be created."
+#   default     = "Australia East"
+# }
 
 variable "environment" {
   type        = string
-  default     = "prod"
+  default     = "dev"
   description = "The envrionment the resources will be deployed into. e.g Dev, Test, Prod."
 }
 

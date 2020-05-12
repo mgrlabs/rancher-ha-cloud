@@ -32,7 +32,7 @@ resource "rke_cluster" "cluster" {
     }
   }
 
-  cluster_name = "${var.company_prefix}rancher${var.environment}"
+  cluster_name = module.azure_cluster.domain_name_prefix
 
   bastion_host {
     address = module.azure_cluster.bastion_node_public_ip
