@@ -27,6 +27,9 @@ jobs:
       - name: "Git: Checkout Repo"
         uses: actions/checkout@v2
 
+      - name: Download RKE Provider
+        run: ./scripts/terraform-provider-rke.sh
+
       - name: 'Terraform: Init'
         uses: hashicorp/terraform-github-actions@v0.8.0
         with:
