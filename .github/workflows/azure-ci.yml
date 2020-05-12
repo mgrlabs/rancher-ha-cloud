@@ -28,15 +28,17 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Download RKE Provider
-        run: ./scripts/terraform-provider-rke.sh
+        run: |
+          mkdir /home/runner/.terraform.d/plugins/darwin_amd64
+          ./scripts/terraform-provider-rke.sh
 
-      - name: 'Terraform: Init'
-        uses: hashicorp/terraform-github-actions@v0.8.0
-        with:
-          tf_actions_subcommand: 'init'
-          tf_actions_version: ${{ env.tf_version }}
-          tf_actions_working_dir: ${{ env.tf_working_dir }}
-          tf_actions_comment: true
+      # - name: 'Terraform: Init'
+      #   uses: hashicorp/terraform-github-actions@v0.8.0
+      #   with:
+      #     tf_actions_subcommand: 'init'
+      #     tf_actions_version: ${{ env.tf_version }}
+      #     tf_actions_working_dir: ${{ env.tf_working_dir }}
+      #     tf_actions_comment: true
 
       - name: 'Test: Terraform Format'
         uses: hashicorp/terraform-github-actions@v0.8.0
