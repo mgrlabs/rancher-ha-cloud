@@ -8,7 +8,7 @@ on:
       - master
       - develop
 
-name: rancher-rke-azure
+name: rancher-ha-cloud
 
 env:
   tf_version: 'latest'

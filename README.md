@@ -1,6 +1,6 @@
-# rancher-rke-azure
+# rancher-ha-cloud
 
-![rancher-rke-azure](https://github.com/mgrlabs/rancher-ha-cloud/workflows/rancher-rke-azure/badge.svg?branch=master)
+![rancher-ha-cloud](https://github.com/mgrlabs/rancher-ha-cloud/workflows/rancher-ha-cloud/badge.svg?branch=master)
 
 This repo contains Terraform templates to deploy Rancher 2.x into a cloud environment in a HA cluster configuration. Currently, there is only a module to deploy into Azure but an additional module will be created for AWS when time permits.
 
@@ -8,7 +8,7 @@ This repo contains Terraform templates to deploy Rancher 2.x into a cloud enviro
 - Create *n* number of Ubuntu 18.04 VMs within Azure
 - Create a Ubuntu bastion host, used to deploy cluster
 - Create VNet, NSGs and a load balancer to front end the cluster and Rancher
-- Use the Terraform [RKE provider](https://github.com/rancher/terraform-provider-rke) to deploy the Kubenetes cluster
+- Use the Terraform [RKE provider](https://github.com/rancher/terraform-provider-rke) to deploy the Kubernetes cluster
 - Use the Terraform [Helm provider](https://www.terraform.io/docs/providers/helm/index.html) to deploy [cert-manager](https://cert-manager.io/docs/)
 - Use the Terraform [Helm provider](https://www.terraform.io/docs/providers/helm/index.html) to deploy [Rancher](https://rancher.com/)
 
