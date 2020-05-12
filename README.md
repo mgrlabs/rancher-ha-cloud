@@ -1,5 +1,7 @@
 # rancher-rke-azure
 
+![rancher-rke-azure](https://github.com/mgrlabs/rancher-ha-cloud/workflows/rancher-rke-azure/badge.svg?branch=master)
+
 This repo contains Terraform templates to deploy Rancher 2.x into a cloud environment in a HA cluster configuration. Currently, there is only a module to deploy into Azure but an additional module will be created for AWS when time permits.
 
 ### Current functionality (Azure):
