@@ -26,7 +26,7 @@ resource "azurerm_storage_account" "config" {
 
 # Availability Set
 resource "azurerm_availability_set" "rancher_ha" {
-  name                        = "as-${var.company_prefix}-rancher-${var.environment}"
+  name                        = "as-rancher-nodes-${var.environment}"
   location                    = azurerm_resource_group.rancher_ha.location
   resource_group_name         = azurerm_resource_group.rancher_ha.name
   platform_fault_domain_count = 2
@@ -35,7 +35,7 @@ resource "azurerm_availability_set" "rancher_ha" {
 # Data Disk 1
 resource "azurerm_managed_disk" "etcd1" {
   count                = var.k8s_node_count
-  name                 = "disk-${var.company_prefix}-rancher-etcd1-${var.environment}-${count.index}"
+  name                 = "disk-rancher-node-etcd1-${var.environment}-${count.index}"
   location             = azurerm_resource_group.rancher_ha.location
   resource_group_name  = azurerm_resource_group.rancher_ha.name
   storage_account_type = "Premium_LRS"
@@ -46,7 +46,7 @@ resource "azurerm_managed_disk" "etcd1" {
 # Data Disk 2
 resource "azurerm_managed_disk" "etcd2" {
   count                = var.k8s_node_count
-  name                 = "disk-${var.company_prefix}-rancher-etcd2-${var.environment}-${count.index}"
+  name                 = "disk-rancher-node-etcd2-${var.environment}-${count.index}"
   location             = azurerm_resource_group.rancher_ha.location
   resource_group_name  = azurerm_resource_group.rancher_ha.name
   storage_account_type = "Premium_LRS"
@@ -57,7 +57,7 @@ resource "azurerm_managed_disk" "etcd2" {
 # Data Disk 3
 resource "azurerm_managed_disk" "backup" {
   count                = var.k8s_node_count
-  name                 = "disk-${var.company_prefix}-rancher-backup-${var.environment}-${count.index}"
+  name                 = "disk-rancher-node-backup-${var.environment}-${count.index}"
   location             = azurerm_resource_group.rancher_ha.location
   resource_group_name  = azurerm_resource_group.rancher_ha.name
   storage_account_type = "Standard_LRS"
@@ -83,7 +83,7 @@ data "template_cloudinit_config" "config" {
 # Network Card
 resource "azurerm_network_interface" "rancher_ha" {
   count               = var.k8s_node_count
-  name                = "nic-${var.company_prefix}-rancher-${var.environment}-${count.index}"
+  name                = "nic-rancher-node-${var.environment}-${count.index}"
   location            = azurerm_resource_group.rancher_ha.location
   resource_group_name = azurerm_resource_group.rancher_ha.name
 
@@ -105,7 +105,7 @@ resource "azurerm_network_interface_security_group_association" "rancher_ha" {
 resource "azurerm_virtual_machine" "rancher_ha" {
   count                            = var.k8s_node_count
   availability_set_id              = azurerm_availability_set.rancher_ha.id
-  name                             = "node-${var.company_prefix}-rancher-${var.environment}-${count.index}"
+  name                             = "node-rancher-${var.environment}-${count.index}"
   location                         = azurerm_resource_group.rancher_ha.location
   resource_group_name              = azurerm_resource_group.rancher_ha.name
   network_interface_ids            = [element(azurerm_network_interface.rancher_ha.*.id, count.index)]
@@ -126,7 +126,7 @@ resource "azurerm_virtual_machine" "rancher_ha" {
   }
 
   storage_os_disk {
-    name              = "disk-${var.company_prefix}-rancher-os-${var.environment}-${count.index}"
+    name              = "disk-rancher-node-os-${var.environment}-${count.index}"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"
@@ -157,7 +157,7 @@ resource "azurerm_virtual_machine" "rancher_ha" {
   }
 
   os_profile {
-    computer_name  = "node-${var.company_prefix}-rancher-${var.environment}-${count.index}"
+    computer_name  = "node-rancher-${var.environment}-${count.index}"
     admin_username = var.admin_name
     custom_data    = data.template_cloudinit_config.config.rendered
   }
@@ -195,7 +195,7 @@ resource "azurerm_virtual_machine" "rancher_ha" {
 ################################
 
 resource "azurerm_availability_set" "bastion" {
-  name                        = "as-${var.company_prefix}-bastion-${var.environment}"
+  name                        = "as-rancher-bastion-${var.environment}"
   location                    = azurerm_resource_group.rancher_ha.location
   resource_group_name         = azurerm_resource_group.rancher_ha.name
   platform_fault_domain_count = 2
@@ -203,7 +203,7 @@ resource "azurerm_availability_set" "bastion" {
 
 # Network Interface
 resource "azurerm_network_interface" "bastion" {
-  name                = "nic-${var.company_prefix}-bastion-${var.environment}-1"
+  name                = "nic-rancher-bastion-${var.environment}"
   location            = azurerm_resource_group.rancher_ha.location
   resource_group_name = azurerm_resource_group.rancher_ha.name
 
@@ -222,7 +222,7 @@ resource "azurerm_network_interface_security_group_association" "bastion" {
 
 # Virtual Machine
 resource "azurerm_virtual_machine" "bastion" {
-  name                             = "bastion-${var.company_prefix}-${var.environment}-1"
+  name                             = "bastion-rancher-${var.environment}"
   availability_set_id              = azurerm_availability_set.bastion.id
   location                         = azurerm_resource_group.rancher_ha.location
   resource_group_name              = azurerm_resource_group.rancher_ha.name
@@ -244,14 +244,14 @@ resource "azurerm_virtual_machine" "bastion" {
   }
 
   storage_os_disk {
-    name              = "disk-${var.company_prefix}-bastion-os-${var.environment}-1"
+    name              = "disk-rancher-bastion-os-${var.environment}"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"
   }
 
   os_profile {
-    computer_name  = "bastion-${var.company_prefix}-${var.environment}-1"
+    computer_name  = "bastion-${var.environment}-1"
     admin_username = var.admin_name
   }
 

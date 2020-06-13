@@ -17,7 +17,7 @@ variable "arm_client_secret" {
 
 variable "environment" {
   type        = string
-  default     = "dev"
+  default     = "prod"
   description = "The envrionment the resources will be deployed into. e.g Dev, Test, Prod."
 }
 

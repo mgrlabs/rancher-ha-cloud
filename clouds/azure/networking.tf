@@ -4,7 +4,7 @@
 
 # Create a virtual network within the resource group
 resource "azurerm_virtual_network" "network" {
-  name                = "vnet-${var.company_prefix}-rancher-${var.environment}"
+  name                = "vnet-rancher-${var.environment}"
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.rancher_ha.location
   resource_group_name = azurerm_resource_group.rancher_ha.name
@@ -48,7 +48,7 @@ resource "azurerm_network_interface_nat_rule_association" "bastion" {
 
 # Public IP
 resource "azurerm_public_ip" "frontend" {
-  name                = "pip-${var.company_prefix}-lb-rancher-${var.environment}"
+  name                = "pip-rancher-lb-${var.environment}"
   sku                 = "standard"
   location            = azurerm_resource_group.rancher_ha.location
   resource_group_name = azurerm_resource_group.rancher_ha.name
@@ -57,7 +57,7 @@ resource "azurerm_public_ip" "frontend" {
 }
 
 resource "azurerm_lb" "frontend" {
-  name                = "lb-${var.company_prefix}-rancher-${var.environment}"
+  name                = "lb-rancher-${var.environment}"
   sku                 = "standard"
   location            = azurerm_resource_group.rancher_ha.location
   resource_group_name = azurerm_resource_group.rancher_ha.name
@@ -122,7 +122,7 @@ resource "azurerm_lb_rule" "kubeapi" {
 # https://rancher.com/docs/rancher/v2.x/en/installation/requirements/
 
 resource "azurerm_network_security_group" "rancher_ha" {
-  name                = "nsg-${var.company_prefix}-rancher-${var.environment}"
+  name                = "nsg-rancher-nodes-${var.environment}"
   location            = azurerm_resource_group.rancher_ha.location
   resource_group_name = azurerm_resource_group.rancher_ha.name
 
@@ -262,7 +262,7 @@ data "external" "whatismyip" {
 }
 
 resource "azurerm_network_security_group" "bastion" {
-  name                = "nsg-${var.company_prefix}-bastion-${var.environment}"
+  name                = "nsg-rancher-bastion-${var.environment}"
   location            = azurerm_resource_group.rancher_ha.location
   resource_group_name = azurerm_resource_group.rancher_ha.name
 
