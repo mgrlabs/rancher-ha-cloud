@@ -26,7 +26,7 @@ variable "environment" {
 
 variable "k8s_docker_version" {
   type        = string
-  default     = "19.03.8"
+  default     = "19.03.11"
   description = "Version of Docker to deploy to k8s nodes."
 }
 

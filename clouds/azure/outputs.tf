@@ -3,12 +3,12 @@
 ################################
 
 output "k8s_nodes_names" {
-  value = azurerm_virtual_machine.rancher.*.name
+  value = azurerm_virtual_machine.rancher_ha.*.name
   description = "Names of the K8s nodes."
 }
 
 output "k8s_nodes_private_ips" {
-  value = azurerm_network_interface.rancher.*.private_ip_address
+  value = azurerm_network_interface.rancher_ha.*.private_ip_address
   description = "Private IPs of the K8s nodes."
 }
 

@@ -6,21 +6,21 @@
 resource "azurerm_virtual_network" "network" {
   name                = "vnet-${var.company_prefix}-rancher-${var.environment}"
   address_space       = ["10.0.0.0/16"]
-  location            = azurerm_resource_group.rancher_cluster.location
-  resource_group_name = azurerm_resource_group.rancher_cluster.name
+  location            = azurerm_resource_group.rancher_ha.location
+  resource_group_name = azurerm_resource_group.rancher_ha.name
 }
 
 # Create subnets
 resource "azurerm_subnet" "subnet" {
   name                 = "subnet-rancher"
-  resource_group_name  = azurerm_resource_group.rancher_cluster.name
+  resource_group_name  = azurerm_resource_group.rancher_ha.name
   virtual_network_name = azurerm_virtual_network.network.name
   address_prefixes     = ["10.0.1.0/24"]
 }
 
 resource "azurerm_subnet" "bastion" {
   name                 = "subnet-bastion"
-  resource_group_name  = azurerm_resource_group.rancher_cluster.name
+  resource_group_name  = azurerm_resource_group.rancher_ha.name
   virtual_network_name = azurerm_virtual_network.network.name
   address_prefixes     = ["10.0.10.0/27"]
 }
@@ -31,7 +31,7 @@ resource "azurerm_subnet" "bastion" {
 
 # Nat rule for Bastion
 resource "azurerm_lb_nat_rule" "bastion" {
-  resource_group_name            = azurerm_resource_group.rancher_cluster.name
+  resource_group_name            = azurerm_resource_group.rancher_ha.name
   loadbalancer_id                = azurerm_lb.frontend.id
   name                           = "sshBastion"
   protocol                       = "Tcp"
@@ -50,8 +50,8 @@ resource "azurerm_network_interface_nat_rule_association" "bastion" {
 resource "azurerm_public_ip" "frontend" {
   name                = "pip-${var.company_prefix}-lb-rancher-${var.environment}"
   sku                 = "standard"
-  location            = azurerm_resource_group.rancher_cluster.location
-  resource_group_name = azurerm_resource_group.rancher_cluster.name
+  location            = azurerm_resource_group.rancher_ha.location
+  resource_group_name = azurerm_resource_group.rancher_ha.name
   allocation_method   = "Static"
   domain_name_label   = "${var.company_prefix}rancher${var.environment}"
 }
@@ -59,8 +59,8 @@ resource "azurerm_public_ip" "frontend" {
 resource "azurerm_lb" "frontend" {
   name                = "lb-${var.company_prefix}-rancher-${var.environment}"
   sku                 = "standard"
-  location            = azurerm_resource_group.rancher_cluster.location
-  resource_group_name = azurerm_resource_group.rancher_cluster.name
+  location            = azurerm_resource_group.rancher_ha.location
+  resource_group_name = azurerm_resource_group.rancher_ha.name
 
   frontend_ip_configuration {
     name                 = "rancher-lb-frontend"
@@ -69,20 +69,20 @@ resource "azurerm_lb" "frontend" {
 }
 
 resource "azurerm_lb_backend_address_pool" "frontend" {
-  resource_group_name = azurerm_resource_group.rancher_cluster.name
+  resource_group_name = azurerm_resource_group.rancher_ha.name
   loadbalancer_id     = azurerm_lb.frontend.id
   name                = "rancher-lb-backend"
 }
 
 resource "azurerm_network_interface_backend_address_pool_association" "worker" {
   count                   = var.k8s_node_count
-  network_interface_id    = element(azurerm_network_interface.rancher.*.id, count.index)
+  network_interface_id    = element(azurerm_network_interface.rancher_ha.*.id, count.index)
   ip_configuration_name   = "ip-configuration-rancher-${count.index}"
   backend_address_pool_id = azurerm_lb_backend_address_pool.frontend.id
 }
 
 resource "azurerm_lb_rule" "http" {
-  resource_group_name            = azurerm_resource_group.rancher_cluster.name
+  resource_group_name            = azurerm_resource_group.rancher_ha.name
   loadbalancer_id                = azurerm_lb.frontend.id
   name                           = "httpAccess"
   protocol                       = "Tcp"
@@ -93,7 +93,7 @@ resource "azurerm_lb_rule" "http" {
 }
 
 resource "azurerm_lb_rule" "https" {
-  resource_group_name            = azurerm_resource_group.rancher_cluster.name
+  resource_group_name            = azurerm_resource_group.rancher_ha.name
   loadbalancer_id                = azurerm_lb.frontend.id
   name                           = "httpsAccess"
   protocol                       = "Tcp"
@@ -105,7 +105,7 @@ resource "azurerm_lb_rule" "https" {
 
 # kubeapi
 resource "azurerm_lb_rule" "kubeapi" {
-  resource_group_name            = azurerm_resource_group.rancher_cluster.name
+  resource_group_name            = azurerm_resource_group.rancher_ha.name
   loadbalancer_id                = azurerm_lb.frontend.id
   name                           = "kubeApiAccess"
   protocol                       = "Tcp"
@@ -121,10 +121,10 @@ resource "azurerm_lb_rule" "kubeapi" {
 
 # https://rancher.com/docs/rancher/v2.x/en/installation/requirements/
 
-resource "azurerm_network_security_group" "rancher" {
+resource "azurerm_network_security_group" "rancher_ha" {
   name                = "nsg-${var.company_prefix}-rancher-${var.environment}"
-  location            = azurerm_resource_group.rancher_cluster.location
-  resource_group_name = azurerm_resource_group.rancher_cluster.name
+  location            = azurerm_resource_group.rancher_ha.location
+  resource_group_name = azurerm_resource_group.rancher_ha.name
 
   # SSH into nodes for support
   security_rule {
@@ -263,8 +263,8 @@ data "external" "whatismyip" {
 
 resource "azurerm_network_security_group" "bastion" {
   name                = "nsg-${var.company_prefix}-bastion-${var.environment}"
-  location            = azurerm_resource_group.rancher_cluster.location
-  resource_group_name = azurerm_resource_group.rancher_cluster.name
+  location            = azurerm_resource_group.rancher_ha.location
+  resource_group_name = azurerm_resource_group.rancher_ha.name
 
   security_rule {
     name                       = "SSH"

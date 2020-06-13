@@ -1,6 +1,6 @@
 # REQUIRES: ~/.terraform.d/plugins/darwin_amd64/terraform-provider-rke_vX.X.X
 provider "rke" {
-  version = "v1.0.0-rc5"
+  version = "=1.0.0"
 }
 
 ################################
@@ -8,7 +8,7 @@ provider "rke" {
 ################################
 
 provider "azurerm" {
-  version = "=2.8.0"
+  version = "=2.14.0"
   features {}
 }
 
@@ -19,7 +19,7 @@ data "azurerm_client_config" "current" {
 # RKE Cluster Deploy
 ################################
 
-resource "rke_cluster" "cluster" {
+resource "rke_cluster" "rancher_ha" {
   dynamic "nodes" {
     iterator = node
     for_each = module.azure_cluster.k8s_nodes_names
@@ -29,6 +29,32 @@ resource "rke_cluster" "cluster" {
       user              = module.azure_cluster.admin_name
       role              = ["controlplane", "worker", "etcd"]
       ssh_key           = module.azure_cluster.tls_private_key
+    }
+  }
+
+  services {
+    etcd {
+      # Etcd snapshots
+      # https://rancher.com/docs/rancher/v2.x/en/backups/backups/ha-backups/
+
+      backup_config {
+        enabled        = true # enables recurring etcd snapshots
+        interval_hours = 6    # time increment between snapshots
+        retention      = 90   # time in days before snapshot purge
+      }
+
+      # Performance tuning etcd
+      # https://rancher.com/docs/rancher/v2.x/en/installation/options/etcd/
+
+      extra_args = {
+        data-dir = "/var/lib/rancher/etcd/data/"
+        wal-dir  = "/var/lib/rancher/etcd/wal/wal_dir"
+      }
+
+      extra_binds = [
+        "/var/lib/etcd/data:/var/lib/rancher/etcd/data",
+        "/var/lib/etcd/wal:/var/lib/rancher/etcd/wal",
+      ]
     }
   }
 
@@ -74,10 +100,10 @@ resource "rke_cluster" "cluster" {
 # Cluster Config
 ################################
 
-# Required for kubectl
+# Required for kubectl & helm
 resource "local_file" "kube_cluster_yaml" {
   filename = "${path.root}/kube_config_cluster.yml"
-  content  = replace(rke_cluster.cluster.kube_config_yaml, "/server:.*/", "server: \"https://${module.azure_cluster.lb_rancher_fqdn}:6443\"")
+  content  = replace(rke_cluster.rancher_ha.kube_config_yaml, "/server:.*/", "server: \"https://${module.azure_cluster.lb_rancher_fqdn}:6443\"")
 }
 
 ################################
@@ -87,10 +113,10 @@ resource "local_file" "kube_cluster_yaml" {
 provider "kubernetes" {
   load_config_file       = "false"
   host                   = "https://${module.azure_cluster.lb_rancher_fqdn}:6443"
-  username               = rke_cluster.cluster.kube_admin_user
-  client_certificate     = rke_cluster.cluster.client_cert
-  client_key             = rke_cluster.cluster.client_key
-  cluster_ca_certificate = rke_cluster.cluster.ca_crt
+  username               = rke_cluster.rancher_ha.kube_admin_user
+  client_certificate     = rke_cluster.rancher_ha.client_cert
+  client_key             = rke_cluster.rancher_ha.client_key
+  cluster_ca_certificate = rke_cluster.rancher_ha.ca_crt
 }
 
 resource "kubernetes_namespace" "cattle_system" {
@@ -111,11 +137,12 @@ resource "kubernetes_namespace" "cert_manager" {
 
 provider "helm" {
   kubernetes {
+    load_config_file       = "false"
     host                   = "https://${module.azure_cluster.lb_rancher_fqdn}:6443"
-    username               = rke_cluster.cluster.kube_admin_user
-    client_certificate     = rke_cluster.cluster.client_cert
-    client_key             = rke_cluster.cluster.client_key
-    cluster_ca_certificate = rke_cluster.cluster.ca_crt
+    username               = rke_cluster.rancher_ha.kube_admin_user
+    client_certificate     = rke_cluster.rancher_ha.client_cert
+    client_key             = rke_cluster.rancher_ha.client_key
+    cluster_ca_certificate = rke_cluster.rancher_ha.ca_crt
   }
 }
 
@@ -125,7 +152,7 @@ resource "helm_release" "cert_manager" {
   repository = "https://charts.jetstack.io"
   namespace  = "cert-manager"
   chart      = "cert-manager"
-  version    = "v0.15.0"
+  # version    = "v0.15.0"
 
   set {
     name  = "installCRDs"
@@ -133,7 +160,7 @@ resource "helm_release" "cert_manager" {
   }
 
   depends_on = [
-    rke_cluster.cluster,
+    rke_cluster.rancher_ha,
     kubernetes_namespace.cert_manager
   ]
 }
