@@ -1,10 +1,5 @@
-# REQUIRES: ~/.terraform.d/plugins/darwin_amd64/terraform-provider-rke_vX.X.X
-provider "rke" {
-  version = "=1.0.0"
-}
-
 ################################
-# Azure RM Provider
+# Azure Deployment
 ################################
 
 provider "azurerm" {
@@ -15,18 +10,31 @@ provider "azurerm" {
 data "azurerm_client_config" "current" {
 }
 
+module azure_cluster {
+  source             = "../clouds/azure"
+  arm_location       = "Australia East"
+  environment        = var.environment
+  rancher_node_count = var.rancher_node_count
+  company_prefix     = var.company_prefix
+}
+
 ################################
 # RKE Cluster Deploy
 ################################
 
+# REQUIRES: ~/.terraform.d/plugins/darwin_amd64/terraform-provider-rke_vX.X.X
+provider "rke" {
+  version = "=1.0.0"
+}
+
 resource "rke_cluster" "rancher_ha" {
   dynamic "nodes" {
     iterator = node
-    for_each = module.azure_cluster.k8s_nodes_names
+    for_each = module.azure_cluster.rancher_nodes_names
     content {
-      address           = module.azure_cluster.k8s_nodes_private_ips[node.key]
-      hostname_override = module.azure_cluster.k8s_nodes_names[node.key]
-      user              = module.azure_cluster.admin_name
+      address           = module.azure_cluster.rancher_nodes_private_ips[node.key]
+      hostname_override = module.azure_cluster.rancher_nodes_names[node.key]
+      user              = module.azure_cluster.linux_username
       role              = ["controlplane", "worker", "etcd"]
       ssh_key           = module.azure_cluster.tls_private_key
     }
@@ -47,13 +55,16 @@ resource "rke_cluster" "rancher_ha" {
       # https://rancher.com/docs/rancher/v2.x/en/installation/options/etcd/
 
       extra_args = {
-        data-dir = "/var/lib/rancher/etcd/data/"
-        wal-dir  = "/var/lib/rancher/etcd/wal/wal_dir"
+        data-dir            = "/var/lib/rancher/etcd/data/"
+        wal-dir             = "/var/lib/rancher/etcd/wal/wal_dir"
+        quota-backend-bytes = 6442450944 # 6GB
+        election-timeout    = 5000
+        heartbeat-interval  = 500
       }
 
       extra_binds = [
-        "/var/lib/etcd/data:/var/lib/rancher/etcd/data",
-        "/var/lib/etcd/wal:/var/lib/rancher/etcd/wal",
+        "/var/lib/etcd/data:/var/lib/rancher/etcd/data", # Managed disk etcd1
+        "/var/lib/etcd/wal:/var/lib/rancher/etcd/wal",   # Managed disk etcd2
       ]
     }
   }
@@ -62,7 +73,7 @@ resource "rke_cluster" "rancher_ha" {
 
   bastion_host {
     address = module.azure_cluster.bastion_node_public_ip
-    user    = module.azure_cluster.admin_name
+    user    = module.azure_cluster.linux_username
     ssh_key = module.azure_cluster.tls_private_key
     port    = 22
   }
@@ -92,7 +103,7 @@ resource "rke_cluster" "rancher_ha" {
     }
   }
   depends_on = [
-    module.azure_cluster.k8s_nodes_names
+    module.azure_cluster.rancher_nodes_names
   ]
 }
 
@@ -123,11 +134,23 @@ resource "kubernetes_namespace" "cattle_system" {
   metadata {
     name = "cattle-system"
   }
+  lifecycle {
+    ignore_changes = [
+      metadata[0].annotations,
+      metadata[0].labels,
+    ]
+  }
 }
 
 resource "kubernetes_namespace" "cert_manager" {
   metadata {
     name = "cert-manager"
+  }
+  lifecycle {
+    ignore_changes = [
+      metadata[0].annotations,
+      metadata[0].labels,
+    ]
   }
 }
 
@@ -189,7 +212,7 @@ resource "helm_release" "rancher" {
   }
   set {
     name  = "replicas"
-    value = var.k8s_node_count
+    value = var.rancher_node_count
   }
   depends_on = [
     helm_release.cert_manager,

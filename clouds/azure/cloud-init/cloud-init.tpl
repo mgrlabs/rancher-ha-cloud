@@ -38,7 +38,7 @@ mounts:
       "defaults,noexec,nofail",
     ]
   - [
-      "/dev/disk/azure/scsi1/lun1-part2",
+      "/dev/disk/azure/scsi1/lun2-part1",
       "/opt/rke/etcd-snapshots/",
       auto,
       "defaults,noexec,nofail",

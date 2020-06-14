@@ -17,11 +17,11 @@ variable "arm_client_secret" {
 
 variable "environment" {
   type        = string
-  default     = "prod"
+  default     = "dev"
   description = "The envrionment the resources will be deployed into. e.g Dev, Test, Prod."
 }
 
-variable "k8s_node_count" {
+variable "rancher_node_count" {
   type        = string
   description = "Number of Kubernetes nodes to deploy."
   default     = "1"

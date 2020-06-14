@@ -13,7 +13,7 @@ resource "local_file" "ssh_private" {
 }
 
 resource "azurerm_storage_account" "config" {
-  name                     = "sa${var.company_prefix}rancher${var.environment}"
+  name                     = "${var.environment}${var.company_prefix}ranchersa"
   location                 = azurerm_resource_group.rancher_ha.location
   resource_group_name      = azurerm_resource_group.rancher_ha.name
   account_tier             = "Standard"
@@ -26,7 +26,7 @@ resource "azurerm_storage_account" "config" {
 
 # Availability Set
 resource "azurerm_availability_set" "rancher_ha" {
-  name                        = "as-rancher-nodes-${var.environment}"
+  name                        = "${var.environment}-rancher-nodes-as"
   location                    = azurerm_resource_group.rancher_ha.location
   resource_group_name         = azurerm_resource_group.rancher_ha.name
   platform_fault_domain_count = 2
@@ -34,8 +34,8 @@ resource "azurerm_availability_set" "rancher_ha" {
 
 # Data Disk 1
 resource "azurerm_managed_disk" "etcd1" {
-  count                = var.k8s_node_count
-  name                 = "disk-rancher-node-etcd1-${var.environment}-${count.index}"
+  count                = var.rancher_node_count
+  name                 = "${var.environment}-rancher-node-${count.index}-etcd1-disk"
   location             = azurerm_resource_group.rancher_ha.location
   resource_group_name  = azurerm_resource_group.rancher_ha.name
   storage_account_type = "Premium_LRS"
@@ -45,8 +45,8 @@ resource "azurerm_managed_disk" "etcd1" {
 
 # Data Disk 2
 resource "azurerm_managed_disk" "etcd2" {
-  count                = var.k8s_node_count
-  name                 = "disk-rancher-node-etcd2-${var.environment}-${count.index}"
+  count                = var.rancher_node_count
+  name                 = "${var.environment}-rancher-node-${count.index}-etcd2-disk"
   location             = azurerm_resource_group.rancher_ha.location
   resource_group_name  = azurerm_resource_group.rancher_ha.name
   storage_account_type = "Premium_LRS"
@@ -56,8 +56,8 @@ resource "azurerm_managed_disk" "etcd2" {
 
 # Data Disk 3
 resource "azurerm_managed_disk" "backup" {
-  count                = var.k8s_node_count
-  name                 = "disk-rancher-node-backup-${var.environment}-${count.index}"
+  count                = var.rancher_node_count
+  name                 = "${var.environment}-rancher-node-${count.index}-backup-disk"
   location             = azurerm_resource_group.rancher_ha.location
   resource_group_name  = azurerm_resource_group.rancher_ha.name
   storage_account_type = "Standard_LRS"
@@ -82,8 +82,8 @@ data "template_cloudinit_config" "config" {
 
 # Network Card
 resource "azurerm_network_interface" "rancher_ha" {
-  count               = var.k8s_node_count
-  name                = "nic-rancher-node-${var.environment}-${count.index}"
+  count               = var.rancher_node_count
+  name                = "${var.environment}-rancher-node-${count.index}-nic"
   location            = azurerm_resource_group.rancher_ha.location
   resource_group_name = azurerm_resource_group.rancher_ha.name
 
@@ -96,37 +96,37 @@ resource "azurerm_network_interface" "rancher_ha" {
 
 # NSG Association
 resource "azurerm_network_interface_security_group_association" "rancher_ha" {
-  count                     = var.k8s_node_count
+  count                     = var.rancher_node_count
   network_interface_id      = element(azurerm_network_interface.rancher_ha.*.id, count.index)
   network_security_group_id = azurerm_network_security_group.rancher_ha.id
 }
 
 # Virtual Machine
 resource "azurerm_virtual_machine" "rancher_ha" {
-  count                            = var.k8s_node_count
+  count                            = var.rancher_node_count
   availability_set_id              = azurerm_availability_set.rancher_ha.id
-  name                             = "node-rancher-${var.environment}-${count.index}"
+  name                             = "${var.environment}-rancher-node-${count.index}"
   location                         = azurerm_resource_group.rancher_ha.location
   resource_group_name              = azurerm_resource_group.rancher_ha.name
   network_interface_ids            = [element(azurerm_network_interface.rancher_ha.*.id, count.index)]
-  vm_size                          = var.k8s_node_vm_size
+  vm_size                          = var.rancher_node_vm_size
   delete_os_disk_on_termination    = true
   delete_data_disks_on_termination = true
 
   boot_diagnostics {
-    enabled = true
+    enabled     = true
     storage_uri = azurerm_storage_account.config.primary_blob_endpoint
   }
 
   storage_image_reference {
     publisher = "Canonical"
     offer     = "UbuntuServer"
-    sku       = var.k8s_ubuntu_sku
+    sku       = var.rancher_ubuntu_sku
     version   = "latest"
   }
 
   storage_os_disk {
-    name              = "disk-rancher-node-os-${var.environment}-${count.index}"
+    name              = "${var.environment}-rancher-node-${count.index}-os-disk"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"
@@ -157,8 +157,8 @@ resource "azurerm_virtual_machine" "rancher_ha" {
   }
 
   os_profile {
-    computer_name  = "node-rancher-${var.environment}-${count.index}"
-    admin_username = var.admin_name
+    computer_name  = "${var.environment}-rancher-node-${count.index}"
+    admin_username = var.linux_username
     custom_data    = data.template_cloudinit_config.config.rendered
   }
 
@@ -166,24 +166,24 @@ resource "azurerm_virtual_machine" "rancher_ha" {
     disable_password_authentication = true
 
     ssh_keys {
-      path     = "/home/${var.admin_name}/.ssh/authorized_keys"
+      path     = "/home/${var.linux_username}/.ssh/authorized_keys"
       key_data = tls_private_key.ssh.public_key_openssh
     }
   }
 
   provisioner "remote-exec" {
     inline = [
-      "curl https://releases.rancher.com/install-docker/${var.k8s_docker_version}.sh | sh && sudo usermod -a -G docker ${var.admin_name}",
+      "curl https://releases.rancher.com/install-docker/${var.rancher_docker_version}.sh | sh && sudo usermod -a -G docker ${var.linux_username}",
     ]
 
     connection {
       host        = azurerm_network_interface.rancher_ha[count.index].private_ip_address
       type        = "ssh"
-      user        = var.admin_name
+      user        = var.linux_username
       private_key = tls_private_key.ssh.private_key_pem
 
       bastion_host        = azurerm_public_ip.frontend.ip_address
-      bastion_user        = var.admin_name
+      bastion_user        = var.linux_username
       bastion_private_key = tls_private_key.ssh.private_key_pem
     }
   }
@@ -195,7 +195,7 @@ resource "azurerm_virtual_machine" "rancher_ha" {
 ################################
 
 resource "azurerm_availability_set" "bastion" {
-  name                        = "as-rancher-bastion-${var.environment}"
+  name                        = "${var.environment}-rancher-bastion-as"
   location                    = azurerm_resource_group.rancher_ha.location
   resource_group_name         = azurerm_resource_group.rancher_ha.name
   platform_fault_domain_count = 2
@@ -203,13 +203,13 @@ resource "azurerm_availability_set" "bastion" {
 
 # Network Interface
 resource "azurerm_network_interface" "bastion" {
-  name                = "nic-rancher-bastion-${var.environment}"
+  name                = "${var.environment}-rancher-bastion-nic"
   location            = azurerm_resource_group.rancher_ha.location
   resource_group_name = azurerm_resource_group.rancher_ha.name
 
   ip_configuration {
-    name      = "ip-configuration-bastion-1"
-    subnet_id = azurerm_subnet.bastion.id
+    name                          = "ip-configuration-bastion"
+    subnet_id                     = azurerm_subnet.bastion.id
     private_ip_address_allocation = "dynamic"
   }
 }
@@ -222,7 +222,7 @@ resource "azurerm_network_interface_security_group_association" "bastion" {
 
 # Virtual Machine
 resource "azurerm_virtual_machine" "bastion" {
-  name                             = "bastion-rancher-${var.environment}"
+  name                             = "${var.environment}-rancher-bastion"
   availability_set_id              = azurerm_availability_set.bastion.id
   location                         = azurerm_resource_group.rancher_ha.location
   resource_group_name              = azurerm_resource_group.rancher_ha.name
@@ -232,7 +232,7 @@ resource "azurerm_virtual_machine" "bastion" {
   delete_data_disks_on_termination = true
 
   boot_diagnostics {
-    enabled = true
+    enabled     = true
     storage_uri = azurerm_storage_account.config.primary_blob_endpoint
   }
 
@@ -244,47 +244,47 @@ resource "azurerm_virtual_machine" "bastion" {
   }
 
   storage_os_disk {
-    name              = "disk-rancher-bastion-os-${var.environment}"
+    name              = "${var.environment}-rancher-bastion-os-disk"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"
   }
 
   os_profile {
-    computer_name  = "bastion-${var.environment}-1"
-    admin_username = var.admin_name
+    computer_name  = "${var.environment}-bastion"
+    admin_username = var.linux_username
   }
 
   os_profile_linux_config {
     disable_password_authentication = true
 
     ssh_keys {
-      path     = "/home/${var.admin_name}/.ssh/authorized_keys"
+      path     = "/home/${var.linux_username}/.ssh/authorized_keys"
       key_data = tls_private_key.ssh.public_key_openssh
     }
   }
 
   provisioner "file" {
-    content = tls_private_key.ssh.private_key_pem
-    destination = "/home/${var.admin_name}/.ssh/id_rsa"
+    content     = tls_private_key.ssh.private_key_pem
+    destination = "/home/${var.linux_username}/.ssh/id_rsa"
 
     connection {
-      host = azurerm_public_ip.frontend.ip_address
+      host        = azurerm_public_ip.frontend.ip_address
       type        = "ssh"
-      user        = var.admin_name
+      user        = var.linux_username
       private_key = tls_private_key.ssh.private_key_pem
     }
   }
 
   provisioner "remote-exec" {
     inline = [
-      "chmod 400 /home/${var.admin_name}/.ssh/id_rsa",
+      "chmod 400 /home/${var.linux_username}/.ssh/id_rsa",
     ]
 
     connection {
-      host = azurerm_public_ip.frontend.ip_address
+      host        = azurerm_public_ip.frontend.ip_address
       type        = "ssh"
-      user        = var.admin_name
+      user        = var.linux_username
       private_key = tls_private_key.ssh.private_key_pem
     }
   }

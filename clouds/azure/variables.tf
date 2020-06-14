@@ -24,25 +24,25 @@ variable "environment" {
 
 # Kubernetes
 
-variable "k8s_docker_version" {
+variable "rancher_docker_version" {
   type        = string
   default     = "19.03.11"
   description = "Version of Docker to deploy to k8s nodes."
 }
 
-variable "k8s_ubuntu_sku" {
+variable "rancher_ubuntu_sku" {
   type        = string
   default     = "18.04-LTS"
   description = "The Azure image SKU of Ubuntu to deploy to the Kubernetes nodes."
 }
 
-variable "k8s_node_vm_size" {
+variable "rancher_node_vm_size" {
   type        = string
   description = "Azure VM size of the worker nodes"
   default     = "Standard_D2s_v3"
 }
 
-variable "k8s_node_count" {
+variable "rancher_node_count" {
   type        = string
   description = "Number of Kubernetes nodes to deploy."
 }
@@ -57,7 +57,7 @@ variable "bastion_vm_size" {
 
 # Administrator Credentials
 
-variable "admin_name" {
+variable "linux_username" {
   type        = string
   description = "Administrator account name on the linux nodes."
   default     = "rancheradmin"

@@ -4,7 +4,7 @@
 
 # Create a virtual network within the resource group
 resource "azurerm_virtual_network" "network" {
-  name                = "vnet-rancher-${var.environment}"
+  name                = "${var.environment}-rancher-vnet"
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.rancher_ha.location
   resource_group_name = azurerm_resource_group.rancher_ha.name
@@ -42,13 +42,13 @@ resource "azurerm_lb_nat_rule" "bastion" {
 
 resource "azurerm_network_interface_nat_rule_association" "bastion" {
   network_interface_id  = azurerm_network_interface.bastion.id
-  ip_configuration_name = "ip-configuration-bastion-1"
+  ip_configuration_name = "ip-configuration-bastion"
   nat_rule_id           = azurerm_lb_nat_rule.bastion.id
 }
 
 # Public IP
 resource "azurerm_public_ip" "frontend" {
-  name                = "pip-rancher-lb-${var.environment}"
+  name                = "${var.environment}-rancher-lb-pip"
   sku                 = "standard"
   location            = azurerm_resource_group.rancher_ha.location
   resource_group_name = azurerm_resource_group.rancher_ha.name
@@ -57,7 +57,7 @@ resource "azurerm_public_ip" "frontend" {
 }
 
 resource "azurerm_lb" "frontend" {
-  name                = "lb-rancher-${var.environment}"
+  name                = "${var.environment}-rancher-lb"
   sku                 = "standard"
   location            = azurerm_resource_group.rancher_ha.location
   resource_group_name = azurerm_resource_group.rancher_ha.name
@@ -75,7 +75,7 @@ resource "azurerm_lb_backend_address_pool" "frontend" {
 }
 
 resource "azurerm_network_interface_backend_address_pool_association" "worker" {
-  count                   = var.k8s_node_count
+  count                   = var.rancher_node_count
   network_interface_id    = element(azurerm_network_interface.rancher_ha.*.id, count.index)
   ip_configuration_name   = "ip-configuration-rancher-${count.index}"
   backend_address_pool_id = azurerm_lb_backend_address_pool.frontend.id
@@ -122,7 +122,7 @@ resource "azurerm_lb_rule" "kubeapi" {
 # https://rancher.com/docs/rancher/v2.x/en/installation/requirements/
 
 resource "azurerm_network_security_group" "rancher_ha" {
-  name                = "nsg-rancher-nodes-${var.environment}"
+  name                = "${var.environment}-rancher-nodes-nsg"
   location            = azurerm_resource_group.rancher_ha.location
   resource_group_name = azurerm_resource_group.rancher_ha.name
 
@@ -262,7 +262,7 @@ data "external" "whatismyip" {
 }
 
 resource "azurerm_network_security_group" "bastion" {
-  name                = "nsg-rancher-bastion-${var.environment}"
+  name                = "${var.environment}-rancher-bastion-nsg"
   location            = azurerm_resource_group.rancher_ha.location
   resource_group_name = azurerm_resource_group.rancher_ha.name
 

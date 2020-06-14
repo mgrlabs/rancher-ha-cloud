@@ -3,6 +3,6 @@
 ################################
 
 resource "azurerm_resource_group" "rancher_ha" {
-  name     = "rg-rancher-${var.environment}"
+  name     = "${var.environment}-rancher-rg"
   location = var.arm_location
 }

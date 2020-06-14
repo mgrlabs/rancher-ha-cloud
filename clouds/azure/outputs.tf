@@ -2,28 +2,28 @@
 # Outputs
 ################################
 
-output "k8s_nodes_names" {
-  value = azurerm_virtual_machine.rancher_ha.*.name
+output "rancher_nodes_names" {
+  value       = azurerm_virtual_machine.rancher_ha.*.name
   description = "Names of the K8s nodes."
 }
 
-output "k8s_nodes_private_ips" {
-  value = azurerm_network_interface.rancher_ha.*.private_ip_address
+output "rancher_nodes_private_ips" {
+  value       = azurerm_network_interface.rancher_ha.*.private_ip_address
   description = "Private IPs of the K8s nodes."
 }
 
 output "bastion_node_public_ip" {
-  value = azurerm_public_ip.frontend.ip_address
+  value       = azurerm_public_ip.frontend.ip_address
   description = "Public IP of the Load Balancer for SSH."
 }
 
-output "admin_name" {
-  value = var.admin_name
+output "linux_username" {
+  value       = var.linux_username
   description = "Admin username configured for Bastion and K8s nodes."
 }
 
 output "lb_rancher_fqdn" {
-  value = azurerm_public_ip.frontend.fqdn
+  value       = azurerm_public_ip.frontend.fqdn
   description = "FQDN of the Azure Load Balancer NIC."
 }
 
