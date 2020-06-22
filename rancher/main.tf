@@ -91,6 +91,9 @@ resource "rke_cluster" "rancher_ha" {
 
   ingress {
     provider = "nginx"
+    options {
+      use-forwarded-headers = "true"
+    }
   }
 
   cloud_provider {

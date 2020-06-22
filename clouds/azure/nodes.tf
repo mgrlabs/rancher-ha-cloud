@@ -111,7 +111,7 @@ resource "azurerm_virtual_machine" "rancher_ha" {
   network_interface_ids            = [element(azurerm_network_interface.rancher_ha.*.id, count.index)]
   vm_size                          = var.rancher_node_vm_size
   delete_os_disk_on_termination    = true
-  delete_data_disks_on_termination = true
+  delete_data_disks_on_termination = false
 
   boot_diagnostics {
     enabled     = true
