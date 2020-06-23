@@ -1,0 +1,31 @@
+on:
+  push:
+    branches:
+      - master
+      - develop
+  pull_request:
+    branches:
+      - master
+      - develop
+
+name: rancher-ha-cloud
+
+env:
+  tf_version: 'latest'
+  tf_working_dir: './rancher'
+  deployEnvironment: 'dev'
+
+jobs:
+
+############################
+# Tests
+############################
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Git: Checkout Repo"
+        uses: actions/checkout@v2
+
+      - name: 'Dummy output!'
+        run: echo "I'm am here to pass your test!"
