@@ -1,5 +1,5 @@
 ################################
-# Kubernetes - Namespaces
+# Kubernetes Namespaces
 ################################
 
 resource "kubernetes_namespace" "cattle_system" {

@@ -44,6 +44,10 @@ resource "helm_release" "rancher" {
     name  = "addLocal"
     value = "true"
   }
+  set {
+    name  = "replicas"
+    value = length(var.node_azure_names)
+  }
   depends_on = [
     helm_release.cert_manager,
     kubernetes_namespace.cattle_system

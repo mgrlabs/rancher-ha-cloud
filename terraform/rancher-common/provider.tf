@@ -14,7 +14,7 @@ provider "rke" {
 
 # Kubernetes provider
 provider "kubernetes" {
-  version                = "1.11.3"
+  version = "1.11.3"
 
   load_config_file       = "false"
   host                   = "https://${var.load_balancer_private_ip}:6443"
@@ -25,7 +25,7 @@ provider "kubernetes" {
 }
 
 provider "helm" {
-  version                = "1.2.3"
+  version = "1.2.3"
   kubernetes {
 
     load_config_file       = "false"
@@ -43,7 +43,7 @@ provider "rancher2" {
 
   alias = "bootstrap"
 
-  api_url  = "https://${var.load_balancer_fqdn}"
-  insecure = true
+  api_url   = "https://${var.load_balancer_fqdn}"
+  insecure  = true
   bootstrap = true
 }

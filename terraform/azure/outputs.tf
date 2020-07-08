@@ -37,8 +37,3 @@ output load_balancer_private_ip {
   value       = azurerm_lb.frontend.private_ip_address
   description = "The private IP assigned to the Load Balancer."
 }
-
-# output docker_id {
-#   value       = azurerm_virtual_machine_extension.rancher_ha.*.id
-#   description = "The ID of the Virtual Machine Extension. Required for dependency mapping."
-# }

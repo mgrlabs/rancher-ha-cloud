@@ -2,6 +2,7 @@
 # Load Balancer
 ################################
 
+# Load balancer
 resource "azurerm_lb" "frontend" {
   name                = "${local.name_prefix}-lb"
   sku                 = "standard"
@@ -13,8 +14,10 @@ resource "azurerm_lb" "frontend" {
     subnet_id                     = data.azurerm_subnet.rancher.id
     private_ip_address_allocation = "dynamic"
   }
+  tags     = local.tags
 }
 
+# Private DNS record for load balancer internal IP
 resource "azurerm_private_dns_a_record" "rancher_ha" {
   name                = "rancher"
   zone_name           = "${var.arm_location}.${var.environment}.${var.private_dns_zone_suffix}"
@@ -23,6 +26,7 @@ resource "azurerm_private_dns_a_record" "rancher_ha" {
   records             = [azurerm_lb.frontend.private_ip_address]
 }
 
+# Load balancer backend pool
 resource "azurerm_lb_backend_address_pool" "frontend" {
   resource_group_name = azurerm_resource_group.rancher_ha.name
   loadbalancer_id     = azurerm_lb.frontend.id
@@ -85,7 +89,7 @@ resource "azurerm_lb_rule" "kubeapi" {
 }
 
 ################################
-# Network Security Group
+# Node Network Security Group
 ################################
 
 # https://rancher.com/docs/rancher/v2.x/en/installation/requirements/
@@ -220,4 +224,5 @@ resource "azurerm_network_security_group" "rancher_ha" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
+  tags     = local.tags
 }

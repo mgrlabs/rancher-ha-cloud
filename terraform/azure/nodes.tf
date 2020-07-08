@@ -8,12 +8,6 @@ resource "tls_private_key" "ssh" {
   rsa_bits  = 2048
 }
 
-# resource "local_file" "ssh_private" {
-#   sensitive_content  = tls_private_key.ssh.private_key_pem
-#   filename           = "${path.root}/ssh_private_key"
-#   file_permission    = "0600"
-# }
-
 # Diagnostic and config storage account
 resource "azurerm_storage_account" "config" {
   name                     = "${substr(replace(local.name_prefix, "-", ""), 0, 22)}sa"
@@ -21,93 +15,21 @@ resource "azurerm_storage_account" "config" {
   resource_group_name      = azurerm_resource_group.rancher_ha.name
   account_tier             = "Standard"
   account_replication_type = "LRS"
+
+  tags     = local.tags
 }
 
-# Availability Set
+# Availability set
 resource "azurerm_availability_set" "rancher_ha" {
   name                        = "${local.name_prefix}-as"
   location                    = azurerm_resource_group.rancher_ha.location
   resource_group_name         = azurerm_resource_group.rancher_ha.name
   platform_fault_domain_count = 2
+
+  tags     = local.tags
 }
 
-################################
-# Data Disks
-################################
-
-# Data Disk 1
-# resource "azurerm_managed_disk" "etcd1" {
-#   count                = var.node_count
-#   name                 = "${local.name_prefix}-${count.index}-etcd1-disk"
-#   location             = azurerm_resource_group.rancher_ha.location
-#   resource_group_name  = azurerm_resource_group.rancher_ha.name
-#   storage_account_type = "Premium_LRS"
-#   create_option        = "Empty"
-#   disk_size_gb         = "256"
-# }
-
-# resource "azurerm_virtual_machine_data_disk_attachment" "etcd1" {
-#   count                = var.node_count
-#   virtual_machine_id = element(azurerm_linux_virtual_machine.rancher_ha.*.id, count.index)
-#   managed_disk_id    = element(azurerm_managed_disk.etcd1.*.id, count.index)
-#   lun                = 0
-#   caching            = "None"
-# }
-
-# Data Disk 2
-# resource "azurerm_managed_disk" "etcd2" {
-#   count                = var.node_count
-#   name                 = "${local.name_prefix}-${count.index}-etcd2-disk"
-#   location             = azurerm_resource_group.rancher_ha.location
-#   resource_group_name  = azurerm_resource_group.rancher_ha.name
-#   storage_account_type = "Premium_LRS"
-#   create_option        = "Empty"
-#   disk_size_gb         = "256"
-# }
-
-# resource "azurerm_virtual_machine_data_disk_attachment" "etcd2" {
-#   count                = var.node_count
-#   virtual_machine_id = element(azurerm_linux_virtual_machine.rancher_ha.*.id, count.index)
-#   managed_disk_id    = element(azurerm_managed_disk.etcd2.*.id, count.index)
-#   lun                = 1
-#   caching            = "None"
-# }
-
-# Data Disk 3
-# resource "azurerm_managed_disk" "backup" {
-#   count                = var.node_count
-#   name                 = "${local.name_prefix}-${count.index}-backup-disk"
-#   location             = azurerm_resource_group.rancher_ha.location
-#   resource_group_name  = azurerm_resource_group.rancher_ha.name
-#   storage_account_type = "Standard_LRS"
-#   create_option        = "Empty"
-#   disk_size_gb         = "1024"
-# }
-
-# resource "azurerm_virtual_machine_data_disk_attachment" "data" {
-#   count                = var.node_count
-#   virtual_machine_id = element(azurerm_linux_virtual_machine.rancher_ha.*.id, count.index)
-#   managed_disk_id    = element(azurerm_managed_disk.backup.*.id, count.index)
-#   lun                = 2
-#   caching            = "None"
-# }
-
-# Cloud-init
-# data "template_file" "cloudconfig" {
-#   template = file("${path.module}/cloud-init/cloud-init.tpl")
-# }
-
-# data "template_cloudinit_config" "config" {
-#   gzip          = true
-#   base64_encode = true
-
-#   part {
-#     content_type = "text/cloud-config"
-#     content      = "${data.template_file.cloudconfig.rendered}"
-#   }
-# }
-
-# Network Card
+# Network card
 resource "azurerm_network_interface" "rancher_ha" {
   count               = var.node_count
   name                = "${local.name_prefix}-${count.index}-nic"
@@ -119,22 +41,25 @@ resource "azurerm_network_interface" "rancher_ha" {
     subnet_id                     = data.azurerm_subnet.rancher.id
     private_ip_address_allocation = "dynamic"
   }
+
+  tags     = local.tags
+
   depends_on = [
     azurerm_lb.frontend
   ]
 }
 
-# NSG Association
+# NSG association
 resource "azurerm_network_interface_security_group_association" "rancher_ha" {
   count                     = var.node_count
   network_interface_id      = element(azurerm_network_interface.rancher_ha.*.id, count.index)
   network_security_group_id = azurerm_network_security_group.rancher_ha.id
 }
 
-# Virtual Machine
+# Virtual machines
 resource "azurerm_linux_virtual_machine" "rancher_ha" {
-  count = var.node_count
-  name  = "${local.name_prefix}-${count.index}"
+  count                 = var.node_count
+  name                  = "${local.name_prefix}-${count.index}"
   computer_name         = "${replace(local.name_prefix, "-", "")}${count.index}"
   location              = azurerm_resource_group.rancher_ha.location
   resource_group_name   = azurerm_resource_group.rancher_ha.name
@@ -192,25 +117,119 @@ resource "azurerm_linux_virtual_machine" "rancher_ha" {
       private_key = tls_private_key.ssh.private_key_pem
     }
   }
+
+  provisioner "file" {
+    source      = "${path.module}/cloud-config/node-data-drives.sh"
+    destination = "/tmp/node-data-drives.sh"
+
+    connection {
+      type        = "ssh"
+      host        = self.private_ip_address
+      user        = var.linux_username
+      private_key = tls_private_key.ssh.private_key_pem
+    }
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "sudo chmod +x /tmp/node-data-drives.sh"
+    ]
+    connection {
+      type        = "ssh"
+      host        = self.private_ip_address
+      user        = var.linux_username
+      private_key = tls_private_key.ssh.private_key_pem
+    }
+  }
+
+  tags     = local.tags
 }
 
-# resource "azurerm_virtual_machine_extension" "rancher_ha" {
-#   count                = var.node_count
-#   name                 = "docker-${var.node_docker_version}"
-#   virtual_machine_id   = element(azurerm_linux_virtual_machine.rancher_ha.*.id, count.index)
-#   publisher            = "Microsoft.Azure.Extensions"
-#   type                 = "CustomScript"
-#   type_handler_version = "2.0"
+# Data Disk 1
+resource "azurerm_managed_disk" "etcd0" {
+  count                = var.node_count
+  name                 = "${local.name_prefix}-${count.index}-etcd0-disk"
+  location             = azurerm_resource_group.rancher_ha.location
+  resource_group_name  = azurerm_resource_group.rancher_ha.name
+  storage_account_type = "Premium_LRS"
+  create_option        = "Empty"
+  disk_size_gb         = "256"
 
-#   settings = <<SETTINGS
-#     {
-#         "script": "${base64encode(templatefile("${path.root}/../../../scripts/node-install-docker.sh", {
-#           docker_version="${var.node_docker_version}", linux_username="${var.linux_username}"
-#         }))}"
-#     }
-# SETTINGS
-#     # {
-#     #     "fileUris": [ "https://releases.rancher.com/install-docker/${var.node_docker_version}.sh" ],
-#     #     "commandToExecute": "bash ${var.node_docker_version}.sh && sudo usermod -a -G docker ${var.linux_username}"
-#     # }
-# }
+  tags     = local.tags
+}
+
+resource "azurerm_virtual_machine_data_disk_attachment" "etcd0" {
+  count              = var.node_count
+  virtual_machine_id = element(azurerm_linux_virtual_machine.rancher_ha.*.id, count.index)
+  managed_disk_id    = element(azurerm_managed_disk.etcd0.*.id, count.index)
+  lun                = 0
+  caching            = "None"
+}
+
+# Data Disk 2
+resource "azurerm_managed_disk" "etcd1" {
+  count                = var.node_count
+  name                 = "${local.name_prefix}-${count.index}-etcd1-disk"
+  location             = azurerm_resource_group.rancher_ha.location
+  resource_group_name  = azurerm_resource_group.rancher_ha.name
+  storage_account_type = "Premium_LRS"
+  create_option        = "Empty"
+  disk_size_gb         = "256"
+
+  tags     = local.tags
+}
+
+resource "azurerm_virtual_machine_data_disk_attachment" "etcd1" {
+  count              = var.node_count
+  virtual_machine_id = element(azurerm_linux_virtual_machine.rancher_ha.*.id, count.index)
+  managed_disk_id    = element(azurerm_managed_disk.etcd1.*.id, count.index)
+  lun                = 1
+  caching            = "None"
+  depends_on = [
+    azurerm_virtual_machine_data_disk_attachment.etcd0
+  ]
+}
+
+# Data Disk 3
+resource "azurerm_managed_disk" "backup" {
+  count                = var.node_count
+  name                 = "${local.name_prefix}-${count.index}-backup-disk"
+  location             = azurerm_resource_group.rancher_ha.location
+  resource_group_name  = azurerm_resource_group.rancher_ha.name
+  storage_account_type = "Standard_LRS"
+  create_option        = "Empty"
+  disk_size_gb         = "1024"
+
+  tags     = local.tags
+}
+
+resource "azurerm_virtual_machine_data_disk_attachment" "backup" {
+  count              = var.node_count
+  virtual_machine_id = element(azurerm_linux_virtual_machine.rancher_ha.*.id, count.index)
+  managed_disk_id    = element(azurerm_managed_disk.backup.*.id, count.index)
+  lun                = 2
+  caching            = "None"
+  depends_on = [
+    azurerm_virtual_machine_data_disk_attachment.etcd1
+  ]
+}
+
+resource "azurerm_virtual_machine_extension" "rancher_ha" {
+  count                = var.node_count
+  name                 = "Data-Drive-Mount"
+  virtual_machine_id   = element(azurerm_linux_virtual_machine.rancher_ha.*.id, count.index)
+  publisher            = "Microsoft.Azure.Extensions"
+  type                 = "CustomScript"
+  type_handler_version = "2.0"
+
+  settings = <<SETTINGS
+    {
+        "commandToExecute": "sudo /tmp/node-data-drives.sh"
+    }
+SETTINGS
+
+  tags     = local.tags
+
+  depends_on = [
+    azurerm_virtual_machine_data_disk_attachment.backup
+  ]
+}

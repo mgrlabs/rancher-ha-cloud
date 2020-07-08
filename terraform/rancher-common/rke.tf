@@ -30,8 +30,8 @@ resource "rke_cluster" "rancher_ha" {
       # https://rancher.com/docs/rancher/v2.x/en/installation/options/etcd/
 
       extra_args = {
-        # data-dir            = "/var/lib/rancher/etcd/data/"
-        # wal-dir             = "/var/lib/rancher/etcd/wal/wal_dir"
+        data-dir = "/var/lib/rancher/etcd/data/"
+        wal-dir  = "/var/lib/rancher/etcd/wal/wal_dir"
 
         # https://etcd.io/docs/v3.4.0/tuning/
 
@@ -41,8 +41,8 @@ resource "rke_cluster" "rancher_ha" {
       }
 
       extra_binds = [
-        # "/var/lib/etcd/data:/var/lib/rancher/etcd/data", # Managed disk etcd1
-        # "/var/lib/etcd/wal:/var/lib/rancher/etcd/wal",   # Managed disk etcd2
+        "/var/lib/etcd/data:/var/lib/rancher/etcd/data", # Managed disk etcd1
+        "/var/lib/etcd/wal:/var/lib/rancher/etcd/wal",   # Managed disk etcd2
       ]
     }
   }
@@ -82,13 +82,7 @@ resource "rke_cluster" "rancher_ha" {
       # cloud_provider_rate_limit_bucket = "0"
     }
   }
+  depends_on = [
+    var.rke_depends_on
+  ]
 }
-
-################################
-# Cluster Config File
-################################
-
-# resource "local_file" "kube_cluster_yaml" {
-#   filename = "${path.root}/kube_config_cluster.yml"
-#   content  = local.rke_kube_config_yaml
-# }

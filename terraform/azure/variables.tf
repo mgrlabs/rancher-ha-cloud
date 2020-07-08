@@ -82,3 +82,9 @@ variable service_principal_client_id {
   type        = string
   description = "description"
 }
+
+variable "tags" {
+  type        = map
+  default     = {}
+  description = "Set of base tags that will be associated with each supported resource."
+}
