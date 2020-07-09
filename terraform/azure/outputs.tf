@@ -37,3 +37,9 @@ output load_balancer_private_ip {
   value       = azurerm_lb.frontend.private_ip_address
   description = "The private IP assigned to the Load Balancer."
 }
+
+output rancher_admin_api_token {
+  value = module.rancher_common.rancher_admin_api_token
+  # sensitive   = true
+  description = "description"
+}

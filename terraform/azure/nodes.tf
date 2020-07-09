@@ -16,7 +16,7 @@ resource "azurerm_storage_account" "config" {
   account_tier             = "Standard"
   account_replication_type = "LRS"
 
-  tags     = local.tags
+  tags = local.tags
 }
 
 # Availability set
@@ -26,7 +26,7 @@ resource "azurerm_availability_set" "rancher_ha" {
   resource_group_name         = azurerm_resource_group.rancher_ha.name
   platform_fault_domain_count = 2
 
-  tags     = local.tags
+  tags = local.tags
 }
 
 # Network card
@@ -42,7 +42,7 @@ resource "azurerm_network_interface" "rancher_ha" {
     private_ip_address_allocation = "dynamic"
   }
 
-  tags     = local.tags
+  tags = local.tags
 
   depends_on = [
     azurerm_lb.frontend
@@ -141,7 +141,7 @@ resource "azurerm_linux_virtual_machine" "rancher_ha" {
     }
   }
 
-  tags     = local.tags
+  tags = local.tags
 }
 
 # Data Disk 1
@@ -154,7 +154,7 @@ resource "azurerm_managed_disk" "etcd0" {
   create_option        = "Empty"
   disk_size_gb         = "256"
 
-  tags     = local.tags
+  tags = local.tags
 }
 
 resource "azurerm_virtual_machine_data_disk_attachment" "etcd0" {
@@ -175,7 +175,7 @@ resource "azurerm_managed_disk" "etcd1" {
   create_option        = "Empty"
   disk_size_gb         = "256"
 
-  tags     = local.tags
+  tags = local.tags
 }
 
 resource "azurerm_virtual_machine_data_disk_attachment" "etcd1" {
@@ -199,7 +199,7 @@ resource "azurerm_managed_disk" "backup" {
   create_option        = "Empty"
   disk_size_gb         = "1024"
 
-  tags     = local.tags
+  tags = local.tags
 }
 
 resource "azurerm_virtual_machine_data_disk_attachment" "backup" {
@@ -227,7 +227,7 @@ resource "azurerm_virtual_machine_extension" "rancher_ha" {
     }
 SETTINGS
 
-  tags     = local.tags
+  tags = local.tags
 
   depends_on = [
     azurerm_virtual_machine_data_disk_attachment.backup

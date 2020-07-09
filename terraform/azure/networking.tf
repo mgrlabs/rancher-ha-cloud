@@ -14,7 +14,7 @@ resource "azurerm_lb" "frontend" {
     subnet_id                     = data.azurerm_subnet.rancher.id
     private_ip_address_allocation = "dynamic"
   }
-  tags     = local.tags
+  tags = local.tags
 }
 
 # Private DNS record for load balancer internal IP
@@ -224,5 +224,5 @@ resource "azurerm_network_security_group" "rancher_ha" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
-  tags     = local.tags
+  tags = local.tags
 }

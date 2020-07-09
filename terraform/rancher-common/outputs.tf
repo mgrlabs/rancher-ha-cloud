@@ -13,3 +13,9 @@ output rancher_admin_password {
   sensitive   = true
   description = "description"
 }
+
+output rancher_admin_api_token {
+  value = rancher2_bootstrap.admin_password.token
+  # sensitive   = true
+  description = "description"
+}
