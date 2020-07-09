@@ -7,32 +7,32 @@ regions = [
     region               = "australiaeast"
     fault_update_domains = "2"
     subnet_name          = "Application"
-    subnet_prefix        = "10.200.66.0/23"
+    subnet_cidr          = "10.200.66.0/23"
   },
   {
     region               = "westus"
     fault_update_domains = "2"
     subnet_name          = "Application"
-    subnet_prefix        = "10.202.66.0/23"
+    subnet_cidr          = "10.202.66.0/23"
   }
 ]
 azure_node_sizes = [
   {
-    name         = "small"
-    size         = "Standard_B2ms"
-    disk_size    = "30"
-    storage_type = "Standard_LRS"
+    node_size_name    = "small"
+    node_vm_size      = "Standard_B2ms"
+    node_disk_size    = "30"
+    node_storage_type = "Standard_LRS"
   },
   {
-    name         = "medium"
-    size         = "Standard_B4ms"
-    disk_size    = "60"
-    storage_type = "Standard_LRS"
+    node_size_name    = "medium"
+    node_vm_size      = "Standard_B4ms"
+    node_disk_size    = "60"
+    node_storage_type = "Standard_LRS"
   },
   {
-    name         = "large"
-    size         = "Standard_F8s_v2"
-    disk_size    = "90"
-    storage_type = "Premium_LRS"
+    node_size_name    = "large"
+    node_vm_size      = "Standard_F8s_v2"
+    node_disk_size    = "90"
+    node_storage_type = "Premium_LRS"
   },
 ]
