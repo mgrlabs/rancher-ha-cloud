@@ -1,7 +1,20 @@
+/*
+Tfvars file for Azure Development environment.
+
+Terraform expects the following environment variables to be exposed specific to the environment being deployed into:
+
+TF_VAR_azure_service_principal_client_id=<client_id>
+TF_VAR_azure_service_principal_client_secret=<client_secret>
+TF_VAR_rancher_api_token=<rancher_api_token>
+*/
+
+# Environment specific
 azure_subscription_id = "cc10292a-7bfe-40c5-ad3f-01bdccc8ad03"
 cloud                 = "azure"
 environment           = "dev"
 rancher_region        = "australiaeast"
+
+# Regions the environment deploys into
 regions = [
   {
     region               = "australiaeast"
@@ -11,11 +24,13 @@ regions = [
   },
   {
     region               = "westus"
-    fault_update_domains = "2"
+    fault_update_domains = "3"
     subnet_name          = "Application"
     subnet_cidr          = "10.202.66.0/23"
   }
 ]
+
+# The size combinations that will be deployed into each region
 azure_node_sizes = [
   {
     node_size_name    = "small"
