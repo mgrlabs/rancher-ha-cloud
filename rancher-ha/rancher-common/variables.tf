@@ -3,22 +3,22 @@
 ################################
 
 # Azure cloud config
-variable service_principal_client_id {
+variable azure_service_principal_client_id {
   type        = string
   description = "Client ID of the Service Principal used for the Azure cloud provider."
 }
 
-variable service_principal_client_secret {
+variable azure_service_principal_client_secret {
   type        = string
   description = "Secret of the Service Principal used for the Azure cloud provider."
 }
 
-variable service_principal_tenant_id {
+variable azure_tenant_id {
   type        = string
   description = "Tenant ID of the Service Principal used for the Azure cloud provider."
 }
 
-variable service_principal_subscription_id {
+variable azure_subscription_id {
   type        = string
   description = "Subscription ID that the Service Principal used for the Azure cloud provider has access to."
 }

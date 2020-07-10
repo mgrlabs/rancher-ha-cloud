@@ -45,6 +45,13 @@ variable azure_subscription_id {
   default = ""
 }
 
+variable azure_tenant_id {
+  type        = string
+  description = "description"
+
+  default = ""
+}
+
 variable azure_node_sizes {
   type        = list(map(string))
   description = "description"

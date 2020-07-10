@@ -4,7 +4,7 @@
 
 # Cloud Region/Environment
 
-variable "arm_location" {
+variable "region" {
   type        = string
   description = "(Required) Specifies the supported Azure location where the resource exists. Changing this forces a new resource to be created."
 }
@@ -73,12 +73,12 @@ variable private_dns_zone_suffix {
   default = "arkoselabs.internal"
 }
 
-variable service_principal_client_secret {
+variable azure_service_principal_client_secret {
   type        = string
   description = "description"
 }
 
-variable service_principal_client_id {
+variable azure_service_principal_client_id {
   type        = string
   description = "description"
 }

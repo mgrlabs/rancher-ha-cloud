@@ -3,11 +3,11 @@
 ################################
 
 # Load balancer
-resource "azurerm_lb" "frontend" {
+resource "azurerm_lb" "rancher" {
   name                = "${local.name_prefix}-lb"
   sku                 = "standard"
-  location            = azurerm_resource_group.rancher_ha.location
-  resource_group_name = azurerm_resource_group.rancher_ha.name
+  location            = azurerm_resource_group.rancher.location
+  resource_group_name = azurerm_resource_group.rancher.name
 
   frontend_ip_configuration {
     name                          = "rancher-lb-frontend"
@@ -18,32 +18,32 @@ resource "azurerm_lb" "frontend" {
 }
 
 # Private DNS record for load balancer internal IP
-resource "azurerm_private_dns_a_record" "rancher_ha" {
+resource "azurerm_private_dns_a_record" "rancher" {
   name                = "rancher"
-  zone_name           = "${var.arm_location}.${var.environment}.${var.private_dns_zone_suffix}"
-  resource_group_name = "${var.environment}-${var.arm_location}-private-dns-zone-rg"
+  zone_name           = "${var.region}.${var.environment}.${var.private_dns_zone_suffix}"
+  resource_group_name = "${var.environment}-${var.region}-private-dns-zone-rg"
   ttl                 = 300
-  records             = [azurerm_lb.frontend.private_ip_address]
+  records             = [azurerm_lb.rancher.private_ip_address]
 }
 
 # Load balancer backend pool
-resource "azurerm_lb_backend_address_pool" "frontend" {
-  resource_group_name = azurerm_resource_group.rancher_ha.name
-  loadbalancer_id     = azurerm_lb.frontend.id
+resource "azurerm_lb_backend_address_pool" "rancher" {
+  resource_group_name = azurerm_resource_group.rancher.name
+  loadbalancer_id     = azurerm_lb.rancher.id
   name                = "rancher-lb-backend"
 }
 
 resource "azurerm_network_interface_backend_address_pool_association" "worker" {
   count                   = var.node_count
-  network_interface_id    = element(azurerm_network_interface.rancher_ha.*.id, count.index)
+  network_interface_id    = element(azurerm_network_interface.rancher.*.id, count.index)
   ip_configuration_name   = "ip-configuration-rancher-${count.index}"
-  backend_address_pool_id = azurerm_lb_backend_address_pool.frontend.id
+  backend_address_pool_id = azurerm_lb_backend_address_pool.rancher.id
 }
 
 # Probe
-resource "azurerm_lb_probe" "rancher_ha" {
-  resource_group_name = azurerm_resource_group.rancher_ha.name
-  loadbalancer_id     = azurerm_lb.frontend.id
+resource "azurerm_lb_probe" "rancher" {
+  resource_group_name = azurerm_resource_group.rancher.name
+  loadbalancer_id     = azurerm_lb.rancher.id
   name                = "rancher-uptime-probe"
   protocol            = "Http"
   port                = "80"
@@ -52,40 +52,40 @@ resource "azurerm_lb_probe" "rancher_ha" {
 
 # Rancher HTTP
 resource "azurerm_lb_rule" "http" {
-  resource_group_name            = azurerm_resource_group.rancher_ha.name
-  loadbalancer_id                = azurerm_lb.frontend.id
+  resource_group_name            = azurerm_resource_group.rancher.name
+  loadbalancer_id                = azurerm_lb.rancher.id
   name                           = "RancherHttpAccess"
   protocol                       = "Tcp"
   frontend_port                  = 80
   backend_port                   = 80
   frontend_ip_configuration_name = "rancher-lb-frontend"
-  probe_id                       = azurerm_lb_probe.rancher_ha.id
-  backend_address_pool_id        = azurerm_lb_backend_address_pool.frontend.id
+  probe_id                       = azurerm_lb_probe.rancher.id
+  backend_address_pool_id        = azurerm_lb_backend_address_pool.rancher.id
 }
 
 # Rancher HTTPS
 resource "azurerm_lb_rule" "https" {
-  resource_group_name            = azurerm_resource_group.rancher_ha.name
-  loadbalancer_id                = azurerm_lb.frontend.id
+  resource_group_name            = azurerm_resource_group.rancher.name
+  loadbalancer_id                = azurerm_lb.rancher.id
   name                           = "RancherHttpsAccess"
   protocol                       = "Tcp"
   frontend_port                  = 443
   backend_port                   = 443
-  probe_id                       = azurerm_lb_probe.rancher_ha.id
+  probe_id                       = azurerm_lb_probe.rancher.id
   frontend_ip_configuration_name = "rancher-lb-frontend"
-  backend_address_pool_id        = azurerm_lb_backend_address_pool.frontend.id
+  backend_address_pool_id        = azurerm_lb_backend_address_pool.rancher.id
 }
 
 # kubeapi
 resource "azurerm_lb_rule" "kubeapi" {
-  resource_group_name            = azurerm_resource_group.rancher_ha.name
-  loadbalancer_id                = azurerm_lb.frontend.id
+  resource_group_name            = azurerm_resource_group.rancher.name
+  loadbalancer_id                = azurerm_lb.rancher.id
   name                           = "kubeApiAccess"
   protocol                       = "Tcp"
   frontend_port                  = 6443
   backend_port                   = 6443
   frontend_ip_configuration_name = "rancher-lb-frontend"
-  backend_address_pool_id        = azurerm_lb_backend_address_pool.frontend.id
+  backend_address_pool_id        = azurerm_lb_backend_address_pool.rancher.id
 }
 
 ################################
@@ -94,10 +94,10 @@ resource "azurerm_lb_rule" "kubeapi" {
 
 # https://rancher.com/docs/rancher/v2.x/en/installation/requirements/
 
-resource "azurerm_network_security_group" "rancher_ha" {
+resource "azurerm_network_security_group" "rancher" {
   name                = "${local.name_prefix}-nsg"
-  location            = azurerm_resource_group.rancher_ha.location
-  resource_group_name = azurerm_resource_group.rancher_ha.name
+  location            = azurerm_resource_group.rancher.location
+  resource_group_name = azurerm_resource_group.rancher.name
 
   # SSH into nodes for support
   security_rule {

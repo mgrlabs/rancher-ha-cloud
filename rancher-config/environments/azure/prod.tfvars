@@ -10,9 +10,9 @@ TF_VAR_rancher_api_token=<rancher_api_token>
 */
 
 # Environment specific
-azure_subscription_id = "cc10292a-7bfe-40c5-ad3f-01bdccc8ad03"
+azure_subscription_id = "afaf5574-d002-4f62-b073-e90ccc4abc4e"
 cloud                 = "azure"
-environment           = "dev"
+environment           = "prod"
 rancher_region        = "australiaeast"
 
 # Regions the environment deploys into

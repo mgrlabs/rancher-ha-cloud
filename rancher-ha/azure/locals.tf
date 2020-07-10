@@ -7,7 +7,7 @@ locals {
   module_tags = {
     "Module" = "rancher-ha-cloud"
   }
-  name_prefix = "${var.environment}-${local.region_abbr[var.arm_location]}-rancher-node"
+  name_prefix = "${var.environment}-${local.region_abbr[var.region]}-rancher"
   region_abbr = {
     australiacentral   = "auce"
     australiacentral2  = "auc2"

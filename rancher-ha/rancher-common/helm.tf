@@ -16,7 +16,7 @@ resource "helm_release" "cert_manager" {
   }
 
   depends_on = [
-    rke_cluster.rancher_ha,
+    rke_cluster.rancher,
     kubernetes_namespace.cert_manager
   ]
 }

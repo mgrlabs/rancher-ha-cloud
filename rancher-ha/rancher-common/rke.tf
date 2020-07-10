@@ -2,7 +2,7 @@
 # RKE Cluster Deploy
 ################################
 
-resource "rke_cluster" "rancher_ha" {
+resource "rke_cluster" "rancher" {
   dynamic "nodes" {
     iterator = node
     for_each = var.node_azure_names
@@ -68,10 +68,10 @@ resource "rke_cluster" "rancher_ha" {
   cloud_provider {
     name = "azure"
     azure_cloud_provider {
-      tenant_id         = var.service_principal_tenant_id
-      subscription_id   = var.service_principal_subscription_id
-      aad_client_id     = var.service_principal_client_id
-      aad_client_secret = var.service_principal_client_secret
+      tenant_id         = var.azure_tenant_id
+      subscription_id   = var.azure_subscription_id
+      aad_client_id     = var.azure_service_principal_client_id
+      aad_client_secret = var.azure_service_principal_client_secret
       # cloud_provider_backoff =  true
       # cloud_provider_backoff_retries = "3"
       # cloud_provider_backoff_exponent = "3"

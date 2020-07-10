@@ -30,8 +30,8 @@ resource "rancher2_node_template" "rancher" {
     no_public_ip     = true
     use_private_ip   = true
 
-    open_port = var.open_ports
-    ssh_user  = "rancheradmin"
+    open_port   = var.open_ports
+    ssh_user    = "rancheradmin"
     docker_port = "2376"
   }
 }

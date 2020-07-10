@@ -18,10 +18,10 @@ provider "kubernetes" {
 
   load_config_file       = "false"
   host                   = "https://${var.load_balancer_private_ip}:6443"
-  username               = rke_cluster.rancher_ha.kube_admin_user
-  client_certificate     = rke_cluster.rancher_ha.client_cert
-  client_key             = rke_cluster.rancher_ha.client_key
-  cluster_ca_certificate = rke_cluster.rancher_ha.ca_crt
+  username               = rke_cluster.rancher.kube_admin_user
+  client_certificate     = rke_cluster.rancher.client_cert
+  client_key             = rke_cluster.rancher.client_key
+  cluster_ca_certificate = rke_cluster.rancher.ca_crt
 }
 
 provider "helm" {
@@ -30,10 +30,10 @@ provider "helm" {
 
     load_config_file       = "false"
     host                   = "https://${var.load_balancer_private_ip}:6443"
-    username               = rke_cluster.rancher_ha.kube_admin_user
-    client_certificate     = rke_cluster.rancher_ha.client_cert
-    client_key             = rke_cluster.rancher_ha.client_key
-    cluster_ca_certificate = rke_cluster.rancher_ha.ca_crt
+    username               = rke_cluster.rancher.kube_admin_user
+    client_certificate     = rke_cluster.rancher.client_cert
+    client_key             = rke_cluster.rancher.client_key
+    cluster_ca_certificate = rke_cluster.rancher.ca_crt
   }
 }
 
