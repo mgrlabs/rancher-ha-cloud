@@ -3,7 +3,7 @@
 ################################
 
 resource "rancher2_cluster_template" "baseline" {
-  name = "baseline-${var.environment}-${var.cloud}"
+  name        = "baseline-${var.environment}-${var.cloud}"
   description = "Terraform deployed RKE template for the ${var.product} ${var.environment} environment in ${var.cloud}"
   #members {  }
 
@@ -28,7 +28,7 @@ resource "rancher2_cluster_template" "baseline" {
         }
         services {
           etcd {
-            creation = "6h"
+            creation  = "6h"
             retention = "24h"
           }
         }

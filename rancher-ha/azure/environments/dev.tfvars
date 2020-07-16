@@ -8,6 +8,6 @@ TF_VAR_azure_service_principal_client_secret=<client_secret>
 */
 
 # Environment specific
-region                                = "australiaeast"
-environment                           = "dev"
-node_count                            = "1"
+region      = "australiaeast"
+environment = "dev"
+node_count  = "1"

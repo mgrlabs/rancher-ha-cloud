@@ -123,6 +123,6 @@ variable github_client_secret {
 # Get the ID of a GitHub user: curl https://api.github.com/users/inmamind
 variable github_role_mappings {
   type        = map
-  default = {}
+  default     = {}
   description = "(Optional) Allowed principal ids for auth. Required if access_mode is required or restricted. Ex: github_user://<USER_ID> github_team://<GROUP_ID> github_org://<ORG_ID> (list)"
 }

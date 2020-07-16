@@ -17,5 +17,5 @@ rancher_region        = "australiaeast"
 product               = "funcaptcha"
 
 github_role_mappings = {
-    "github_org://5441327" = "admin"
-  }
+  "github_org://5441327" = "admin"
+}

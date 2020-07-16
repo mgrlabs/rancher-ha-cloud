@@ -39,7 +39,7 @@ output load_balancer_private_ip {
 }
 
 output rancher_admin_api_token {
-  value = module.rancher_common.rancher_admin_api_token
+  value       = module.rancher_common.rancher_admin_api_token
   sensitive   = true
   description = "description"
 }
