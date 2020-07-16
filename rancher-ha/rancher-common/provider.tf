@@ -40,9 +40,6 @@ provider "helm" {
 # Rancher2 bootstrapping provider
 provider "rancher2" {
   version = "1.9.0"
-
-  alias = "bootstrap"
-
   api_url   = "https://${var.load_balancer_fqdn}"
   insecure  = true
   bootstrap = true

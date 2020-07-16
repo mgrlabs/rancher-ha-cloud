@@ -9,14 +9,22 @@ resource "random_password" "rancher" {
   override_special = "_%@"
 }
 
-# Initialize Rancher server
-resource "rancher2_bootstrap" "admin_password" {
+# Arbitrary wait to allow Rancher to become ready
+resource "null_resource" "rancher" {
+  provisioner "local-exec" {
+    command = "sleep 10"
+  }
   depends_on = [
     helm_release.rancher
   ]
+}
 
-  provider = rancher2.bootstrap
-
+# Initialize Rancher server
+resource "rancher2_bootstrap" "admin_password" {
   password  = random_password.rancher.result
   telemetry = true
+
+  depends_on = [
+    null_resource.rancher
+  ]
 }
