@@ -21,34 +21,65 @@ This repo contains the Terraform infra as code to deploy a Rancher HA Control pl
 ├── README.md
 ├── images
 │   └── azure-logical.png
-├── scripts
-│   ├── terraform-provider-rke.sh
-│   └── what-is-my-ip.sh
-├── ssh_private_key
-└── terraform
-    ├── azure
-    │   ├── cloud-config
-    │   │   ├── cloud-init.tpl
-    │   │   └── node-data-drives.sh
-    │   ├── locals.tf
-    │   ├── main.tf
-    │   ├── networking.tf
-    │   ├── nodes.tf
-    │   ├── outputs.tf
-    │   ├── provider.tf
-    │   ├── secrets.tf
-    │   └── variables.tf
-    ├── cloud-common
-    │   └── cloud_init.tpl
-    └── rancher-common
-        ├── helm.tf
-        ├── kubernetes.tf
-        ├── locals.tf
-        ├── outputs.tf
-        ├── provider.tf
-        ├── rancher.tf
-        ├── rke.tf
-        └── variables.tf
+├── rancher-clusters
+│   ├── azure
+│   │   ├── locals.tf
+│   │   ├── main.tf
+│   │   ├── provider.tf
+│   │   └── variables.tf
+│   ├── environments
+│   │   └── funcaptcha
+│   │       └── azure
+│   │           └── dev
+│   │               └── australiaeast.tfvars
+│   └── nodes
+│       ├── locals.tf
+│       ├── main.tf
+│       └── variables.tf
+├── rancher-config
+│   ├── cloud-credentials.tf
+│   ├── cluster-templates.tf
+│   ├── environments
+│   │   └── azure
+│   │       ├── dev.tfvars
+│   │       ├── prod.tfvars
+│   │       └── test.tfvars
+│   ├── github-auth.tf
+│   ├── locals.tf
+│   ├── provider.tf
+│   └── variables.tf
+├── rancher-ha
+│   ├── azure
+│   │   ├── cloud-config
+│   │   │   ├── cloud-init.tpl
+│   │   │   └── node-data-drives.sh
+│   │   ├── environments
+│   │   │   └── dev.tfvars
+│   │   ├── key-vault.tf
+│   │   ├── local.tfvars
+│   │   ├── locals.tf
+│   │   ├── main.tf
+│   │   ├── networking.tf
+│   │   ├── nodes.tf
+│   │   ├── outputs.tf
+│   │   ├── provider.tf
+│   │   ├── secrets.tf
+│   │   └── variables.tf
+│   ├── cloud-common
+│   │   └── cloud_init.tpl
+│   └── rancher-common
+│       ├── helm.tf
+│       ├── kubernetes.tf
+│       ├── locals.tf
+│       ├── outputs.tf
+│       ├── provider.tf
+│       ├── rancher.tf
+│       ├── rke.tf
+│       └── variables.tf
+└── scripts
+    ├── rancher-config-secrets.sh
+    ├── terraform-provider-rke.sh
+    └── what-is-my-ip.sh
 ```
 
 ## Usage
