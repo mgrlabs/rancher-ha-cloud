@@ -12,9 +12,8 @@ TF_VAR_rancher_api_token=<rancher_api_token>
 # Environment specific
 azure_subscription_id = "cc10292a-7bfe-40c5-ad3f-01bdccc8ad03"
 cloud                 = "azure"
-environment           = "prod"
+environment           = "dev"
 rancher_region        = "australiaeast"
-product               = "funcaptcha"
 
 github_role_mappings = {
   "github_org://5441327" = "admin"

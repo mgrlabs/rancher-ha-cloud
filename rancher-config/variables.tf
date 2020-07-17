@@ -1,8 +1,3 @@
-variable product {
-  type        = string
-  description = "Name of the product/solution that will be hosted on the cluster."
-}
-
 # Cloud general
 variable cloud {
   type        = string
@@ -57,16 +52,6 @@ variable azure_tenant_id {
 
   default = ""
 }
-
-# variable azure_node_sizes {
-#   type        = list(map(string))
-#   description = "description"
-# }
-
-# variable regions {
-#   type        = list(map(string))
-#   description = "description"
-# }
 
 # AWS specific
 variable aws_access_key {
