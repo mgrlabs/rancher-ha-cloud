@@ -14,27 +14,27 @@ region      = "australiaeast"
 
 node_config_etcd = {
   quantity             = "3"
-  vm_size              = "Standard_B2ms"
+  vm_size              = "Standard_D2_v3"
   disk_type            = "Standard_LRS"
   disk_size            = "30"
-  subnet_name          = "bastion"
+  subnet_name          = "Application"
   fault_update_domains = "2"
 }
 
 node_config_control = {
-  quantity             = "1"
-  vm_size              = "Standard_B2ms"
+  quantity             = "2"
+  vm_size              = "Standard_D2_v3"
   disk_type            = "Standard_LRS"
   disk_size            = "30"
-  subnet_name          = "bastion"
+  subnet_name          = "Application"
   fault_update_domains = "2"
 }
 
 node_config_worker = {
   quantity             = "1"
-  vm_size              = "Standard_B2ms"
+  vm_size              = "Standard_D2_v3"
   disk_type            = "Standard_LRS"
   disk_size            = "30"
-  subnet_name          = "bastion"
+  subnet_name          = "Application"
   fault_update_domains = "2"
 }

@@ -12,6 +12,12 @@ resource "azurerm_resource_group" "rancher_cluster" {
 data "azurerm_client_config" "current" {
 }
 
+# data "azurerm_subnet" "azure" {
+#   name                 = var.node_config_etcd.subnet_name
+#   virtual_network_name = "${local.vnet_prefix}"
+#   resource_group_name  = "${local.vnet_prefix}-rg"
+# }
+
 ################################
 # Rancher Cluster
 ################################
@@ -38,14 +44,15 @@ resource "rancher2_cluster" "rancher_cluster" {
 
 # Nodes - Worker
 module nodes_worker {
-  source                      = "./nodes"
+  source                      = "../nodes"
   node_role_suffix            = "worker"
+  product                     = var.product
   cloud                       = var.cloud
   environment                 = var.environment
   region                      = var.region
   node_azure_resource_group   = "${local.azure_prefix}-rg"
   region_fault_update_domains = var.node_config_worker.fault_update_domains
-  node_vnet_subnet_name       = var.node_config_worker.subnet_name
+  node_subnet_name            = var.node_config_worker.subnet_name
 
   # node config
   node_vm_size   = var.node_config_worker.vm_size
@@ -60,14 +67,15 @@ module nodes_worker {
 
 # Nodes - Etcd
 module nodes_etcd {
-  source                      = "./nodes"
+  source                      = "../nodes"
   node_role_suffix            = "etcd"
+  product                     = var.product
   cloud                       = var.cloud
   environment                 = var.environment
   region                      = var.region
   node_azure_resource_group   = "${local.azure_prefix}-rg"
-  region_fault_update_domains = var.node_config_etcd.fault_update_domains
-  node_vnet_subnet_name       = var.node_config_etcd.subnet_name
+  region_fault_update_domains = var.node_config_worker.fault_update_domains
+  node_subnet_name            = var.node_config_worker.subnet_name
 
   # node config
   node_vm_size   = var.node_config_etcd.vm_size
@@ -82,14 +90,15 @@ module nodes_etcd {
 
 # Nodes - Control
 module nodes_control {
-  source                      = "./nodes"
+  source                      = "../nodes"
   node_role_suffix            = "control"
+  product                     = var.product
   cloud                       = var.cloud
   environment                 = var.environment
   region                      = var.region
   node_azure_resource_group   = "${local.azure_prefix}-rg"
-  region_fault_update_domains = var.node_config_control.fault_update_domains
-  node_vnet_subnet_name       = var.node_config_control.subnet_name
+  region_fault_update_domains = var.node_config_worker.fault_update_domains
+  node_subnet_name            = var.node_config_worker.subnet_name
 
   # node config
   node_vm_size   = var.node_config_control.vm_size

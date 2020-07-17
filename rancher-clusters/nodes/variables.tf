@@ -1,8 +1,6 @@
 variable product {
   type        = string
   description = "Name of the product/solution that will be hosted on the cluster."
-
-  default = "funcaptcha"
 }
 
 # Cloud general
@@ -62,17 +60,17 @@ variable node_disk_type {
   description = "description"
 }
 
-# variable node_vnet {
+# variable node_vnet_path {
 #   type        = string
 #   description = "description"
 # }
 
-# variable node_vnet_subnet_cidr {
+# variable node_subnet_prefix {
 #   type        = string
 #   description = "description"
 # }
 
-variable node_vnet_subnet_name {
+variable node_subnet_name {
   type        = string
   description = "description"
 }

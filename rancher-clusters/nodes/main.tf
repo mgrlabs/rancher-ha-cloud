@@ -1,11 +1,11 @@
-data "rancher2_cloud_credential" "nodes" {
-  name = "cloudcred-${var.environment}-${var.cloud}"
+data "azurerm_subnet" "azure" {
+  name                 = var.node_subnet_name
+  virtual_network_name = "${local.vnet_prefix}-vnet"
+  resource_group_name  = "${local.vnet_prefix}-rg"
 }
 
-data "azurerm_subnet" "nodes" {
-  name                 = var.node_vnet_subnet_name
-  virtual_network_name = "${var.environment}-${var.region}-rancher-vnet"
-  resource_group_name  = "${var.environment}-${var.region}-rancher-vnet-rg"
+data "rancher2_cloud_credential" "nodes" {
+  name = "cloudcred-${var.environment}-${var.cloud}"
 }
 
 resource "rancher2_node_template" "nodes" {
@@ -28,9 +28,9 @@ resource "rancher2_node_template" "nodes" {
     storage_type  = var.node_disk_type
     disk_size     = var.node_disk_size
 
-    vnet             = "${var.environment}-${var.region}-rancher-vnet-rg:${var.environment}-${var.region}-rancher-vnet"
-    subnet_prefix    = data.azurerm_subnet.nodes.address_prefixes[0]
-    subnet           = var.node_vnet_subnet_name
+    vnet             = "${local.vnet_prefix}-rg:${local.vnet_prefix}-vnet"
+    subnet_prefix    = data.azurerm_subnet.azure.address_prefixes[0]
+    subnet           = var.node_subnet_name
     static_public_ip = true
     no_public_ip     = true
     use_private_ip   = true

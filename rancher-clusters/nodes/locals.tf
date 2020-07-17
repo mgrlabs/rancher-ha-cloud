@@ -1,7 +1,9 @@
 locals {
   rancher_prefix = "${var.product}-${var.environment}-${var.region}-${var.node_role_suffix}"
+  vnet_prefix    = "${var.environment}-${var.region}-vnet-spoke"
+  # vnet_prefix    = "${var.environment}-${var.region}-vnet-${var.product}"
   node_prefix    = "${var.environment}-${var.region}-${var.product}-rke-${var.node_role_suffix}"
-  vnet_prefix    = "${var.environment}-${var.region}-${var.product}-vnet-rg"
+
 
   ports_etcd = [
     "2379/tcp",
