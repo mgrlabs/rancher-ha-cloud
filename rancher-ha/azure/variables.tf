@@ -32,22 +32,21 @@ variable "node_count" {
   type        = string
   description = "Number of Kubernetes nodes to deploy to host Rancher."
 
-  default = "3"
+  default = "1"
 }
 
 variable "node_vm_size" {
   type        = string
   description = "Azure VM size of the worker nodes"
 
-  default = "Standard_B4ms"
-  # default = "Standard_B2ms"
+  default = "Standard_B2ms"
 }
 
 variable "node_docker_version" {
   type        = string
   description = "Version of Docker to deploy to k8s nodes."
 
-  default = "19.03.11"
+  default = "19.03"
 }
 
 # Administrator Credentials
@@ -63,14 +62,7 @@ variable rancher_subnet {
   type        = string
   description = "The name of the subnet the Rancher HA cluster will be deployed into."
 
-  default = "rancher"
-}
-
-variable private_dns_zone_suffix {
-  type        = string
-  description = "description"
-
-  default = "arkoselabs.internal"
+  default = "Application"
 }
 
 variable azure_service_principal_client_secret {

@@ -13,24 +13,29 @@ resource "azurerm_key_vault" "rancher" {
     tenant_id = data.azurerm_client_config.current.tenant_id
     object_id = data.azurerm_client_config.current.object_id
 
-    key_permissions = [
+    key_permissions = []
+
+    secret_permissions = [
       "backup",
-      "create",
-      "decrypt",
       "delete",
-      "encrypt",
       "get",
-      "import",
       "list",
       "purge",
       "recover",
       "restore",
-      "sign",
-      "unwrapKey",
-      "update",
-      "verify",
-      "wrapKey",
+      "set",
     ]
+
+    storage_permissions = [
+      "get",
+    ]
+  }
+
+  access_policy {
+    tenant_id = data.azurerm_client_config.current.tenant_id
+    object_id = "59d3d958-5623-413d-bb07-a78030e26e3a"
+
+    key_permissions = []
 
     secret_permissions = [
       "backup",

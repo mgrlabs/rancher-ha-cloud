@@ -5,7 +5,7 @@
 # Load balancer
 resource "azurerm_lb" "rancher" {
   name                = "${local.name_prefix}-lb"
-  sku                 = "standard"
+  sku                 = "basic"
   location            = azurerm_resource_group.rancher.location
   resource_group_name = azurerm_resource_group.rancher.name
 
@@ -20,7 +20,7 @@ resource "azurerm_lb" "rancher" {
 # Private DNS record for load balancer internal IP
 resource "azurerm_private_dns_a_record" "rancher" {
   name                = "rancher"
-  zone_name           = "${var.region}.${var.environment}.${var.private_dns_zone_suffix}"
+  zone_name           = "${var.region}.${var.environment}.${local.private_dns_zone_suffix}"
   resource_group_name = "${var.environment}-${var.region}-private-dns-zone-rg"
   ttl                 = 300
   records             = [azurerm_lb.rancher.private_ip_address]

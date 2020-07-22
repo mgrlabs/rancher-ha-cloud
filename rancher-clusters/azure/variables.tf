@@ -29,6 +29,12 @@ variable "tags" {
   description = "Set of base tags that will be associated with each supported resource."
 }
 
+variable subscription_id {
+  type        = string
+  description = "description"
+}
+
+
 # Rancher Control Plane
 variable rancher_api_token {
   type        = string
@@ -39,7 +45,7 @@ variable rancher_region {
   type        = string
   description = "Region for the specified cloud."
 
-  default = "australiaeast"
+  default = "westus"
 }
 
 # Nodes

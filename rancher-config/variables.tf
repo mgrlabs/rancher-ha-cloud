@@ -28,29 +28,21 @@ variable rancher_region {
 variable azure_service_principal_client_id {
   type        = string
   description = "description"
-
-  default = ""
 }
 
 variable azure_service_principal_client_secret {
   type        = string
   description = "description"
-
-  default = null
 }
 
 variable azure_subscription_id {
   type        = string
   description = "description"
-
-  default = ""
 }
 
 variable azure_tenant_id {
   type        = string
   description = "description"
-
-  default = ""
 }
 
 # AWS specific

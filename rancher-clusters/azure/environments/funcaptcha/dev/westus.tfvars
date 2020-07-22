@@ -7,10 +7,11 @@ TF_VAR_rancher_api_token=<rancher_api_token>
 */
 
 # Environment specific
-product     = "rancher"
+product     = "funcaptcha"
 cloud       = "azure"
 environment = "dev"
-region      = "australiaeast"
+region      = "westus"
+subscription_id = "ee080ef7-a10d-47a3-83be-29330decee8d"
 
 node_config_etcd = {
   quantity             = "3"

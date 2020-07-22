@@ -68,7 +68,7 @@ module nodes_worker {
 # Nodes - Etcd
 module nodes_etcd {
   source                      = "../nodes"
-  node_role_suffix            = "etcd"
+  node_role_suffix            = "all"
   product                     = var.product
   cloud                       = var.cloud
   environment                 = var.environment

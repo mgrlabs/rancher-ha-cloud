@@ -9,7 +9,7 @@ provider "random" {
 
 # REQUIRES: ~/.terraform.d/plugins/darwin_amd64/terraform-provider-rke_vX.X.X
 provider "rke" {
-  version = "1.0.0"
+  version = "1.0.1"
 }
 
 # Kubernetes provider

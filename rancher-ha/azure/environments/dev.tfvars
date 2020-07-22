@@ -8,6 +8,7 @@ TF_VAR_azure_service_principal_client_secret=<client_secret>
 */
 
 # Environment specific
-region      = "australiaeast"
+region      = "westus"
 environment = "dev"
-node_count  = "1"
+node_count  = "3"
+node_vm_size = "Standard_B2ms"

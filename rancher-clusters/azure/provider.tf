@@ -7,6 +7,7 @@ provider "rancher2" {
 }
 
 provider "azurerm" {
-  version = "=2.18.0"
+  version = "=2.19.0"
+  subscription_id = var.subscription_id
   features {}
 }

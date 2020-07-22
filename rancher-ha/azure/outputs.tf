@@ -43,3 +43,9 @@ output rancher_admin_api_token {
   sensitive   = true
   description = "description"
 }
+
+output rancher_admin_password {
+  value       = module.rancher_common.rancher_admin_password
+  sensitive   = true
+  description = "description"
+}

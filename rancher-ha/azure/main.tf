@@ -16,8 +16,8 @@ data "azurerm_client_config" "current" {
 
 data "azurerm_subnet" "rancher" {
   name                 = var.rancher_subnet
-  virtual_network_name = "${var.environment}-${var.region}-rancher-vnet"
-  resource_group_name  = "${var.environment}-${var.region}-rancher-vnet-rg"
+  virtual_network_name = "${var.environment}-${var.region}-vnet-rancher-vnet"
+  resource_group_name  = "${var.environment}-${var.region}-vnet-rancher-rg"
 }
 
 # Rancher Common module

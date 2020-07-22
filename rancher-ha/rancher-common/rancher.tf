@@ -12,7 +12,7 @@ resource "random_password" "rancher" {
 # Arbitrary wait to allow Rancher to become ready
 resource "null_resource" "rancher" {
   provisioner "local-exec" {
-    command = "sleep 10"
+    command = "sleep 60"
   }
   depends_on = [
     helm_release.rancher

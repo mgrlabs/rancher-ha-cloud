@@ -5,7 +5,7 @@ terraform {
 }
 
 provider "azurerm" {
-  version = "=2.17.0"
+  version = "=2.19.0"
   features {}
 }
 
@@ -13,6 +13,6 @@ provider "tls" {
   version = "=2.1.1"
 }
 
-# provider "null_resource" {
-#   version = "2.1.2"
-# }
+provider "null" {
+  version = "2.1.2"
+}
